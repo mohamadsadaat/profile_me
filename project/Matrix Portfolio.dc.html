@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+<link href="https://fonts.googleapis.com/css2?family=Rakkas&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<meta name="ext-resource-dependency" content="raumstudio-card.jpg" data-resource-id="raumstudio" />
+<meta name="ext-resource-dependency" content="skrestaurant-card.jpg" data-resource-id="skrestaurant" />
+<template id="__bundler_thumbnail" data-bg-color="#050807">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" fill="#050807"/><g fill="none" stroke="#39ff88" stroke-width="1" opacity="0.5"><line x1="40" y1="0" x2="40" y2="200"/><line x1="90" y1="0" x2="90" y2="200"/><line x1="140" y1="0" x2="140" y2="200"/><line x1="0" y1="60" x2="200" y2="60"/><line x1="0" y1="130" x2="200" y2="130"/></g><text x="100" y="108" text-anchor="middle" font-family="monospace" font-size="34" fill="#39ff88">&lt;/&gt;</text></svg>
+</template>
+<style>
+  html { background: #050807; scroll-behavior: smooth; }
+  body { margin: 0; background: #050807; color: #d9f5e6; overflow-x: hidden; }
+  a { color: #4dd8ff; text-decoration: none; }
+  a:hover { color: #8ee9ff; }
+  ::selection { background: rgba(57,255,136,0.28); }
+  @keyframes mx-blink { 0%,50% { opacity: 1; } 51%,100% { opacity: 0; } }
+  @keyframes mx-pulse { 0%,100% { opacity: .5; } 50% { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</helmet>
+
+<div dir="{{ dir }}" style="position: relative; min-height: 100vh; font-family: {{ bodyFont }}; background: #050807;">
+
+  <canvas ref="{{ bgRef }}" style="position: fixed; inset: 0; width: 100%; height: 100%; display: block; z-index: 0; opacity: 0.5;"></canvas>
+  <div ref="{{ gridRef }}" style="position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.18; background-image: repeating-linear-gradient(0deg, rgba(57,255,136,0.5) 0px, rgba(57,255,136,0.5) 1px, transparent 1px, transparent 64px), repeating-linear-gradient(90deg, rgba(57,255,136,0.5) 0px, rgba(57,255,136,0.5) 1px, transparent 1px, transparent 64px);"></div>
+  <div style="position: fixed; inset: 0; z-index: 1; pointer-events: none; background: radial-gradient(circle at 50% 30%, rgba(5,8,7,0) 0%, rgba(5,8,7,0.5) 60%, #05080766 100%);"></div>
+
+  <nav style="position: fixed; top: 0; inset-inline: 0; z-index: 40; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 20px clamp(20px, 5vw, 64px); background: #050807dd; border-bottom: 1px solid rgba(57,255,136,0.14);">
+    <a href="#top" style="display: flex; align-items: center; gap: 10px; color: #d9f5e6;">
+      <span style="font-family: {{ monoFont }}; font-size: 15px; color: #39ff88;">&gt;_</span>
+      <span style="font-family: {{ monoFont }}; font-size: 16px; letter-spacing: .04em;">{{ t.brand }}</span>
+    </a>
+    <div style="display: flex; align-items: center; gap: clamp(10px, 2vw, 28px);">
+      <sc-for list="{{ t.nav }}" as="item" hint-placeholder-count="5">
+        <a href="{{ item.href }}" style="font-size: 13px; letter-spacing: .06em; color: rgba(217,245,230,0.66); padding: 6px 2px; border-bottom: 1px solid transparent; font-family: {{ monoFont }};" style-hover="color: #39ff88; border-bottom-color: rgba(57,255,136,0.5);">{{ item.label }}</a>
+      </sc-for>
+      <button onClick="{{ toggleLang }}" style="cursor: pointer; font-family: {{ monoFont }}; font-size: 12px; letter-spacing: .1em; color: #8ee9ff; background: rgba(77,216,255,0.08); border: 1px solid rgba(77,216,255,0.35); border-radius: 4px; padding: 8px 16px;" style-hover="background: rgba(77,216,255,0.18); color: #eafcff;">{{ t.langToggle }}</button>
+    </div>
+  </nav>
+
+  <main id="top" style="position: relative; z-index: 10;">
+
+    <section style="min-height: 100vh; display: grid; place-items: center; padding: 140px clamp(20px, 6vw, 80px) 100px; text-align: center;">
+      <div style="position: relative;">
+        <div style="position: absolute; inset: -6% -14%; pointer-events: none; background: radial-gradient(ellipse at 50% 40%, rgba(5,8,7,0.85) 0%, rgba(5,8,7,0.6) 55%, rgba(5,8,7,0) 100%);"></div>
+        <div style="position: relative; display: grid; place-items: center; margin: 0 auto 30px;">
+          <div style="position: relative; width: 128px; height: 128px;">
+            <div style="position: absolute; inset: -8px; border-radius: 50%; border: 1px solid rgba(57,255,136,0.45); box-shadow: 0 0 30px rgba(57,255,136,0.25);"></div>
+            <div style="position: absolute; inset: -2px; border-radius: 50%; border: 1px solid rgba(77,216,255,0.5);"></div>
+            <div style="position: absolute; inset: 6px; border-radius: 50%; overflow: hidden; background: #071009; display: grid; place-items: center;">
+              <img data-src="{{ t.photo }}" alt="{{ t.heroName }}" style="width: 100%; height: 100%; object-fit: cover; display: block;" onError="this.style.display='none'" />
+              <span style="position: absolute; font-family: {{ monoFont }}; font-size: 10px; letter-spacing: .12em; color: rgba(217,245,230,0.35); text-align: center; padding: 0 16px; line-height: 1.7;">{{ t.photoHint }}</span>
+            </div>
+          </div>
+        </div>
+        <p style="position: relative; margin: 0 0 20px; font-family: {{ monoFont }}; font-size: 13px; letter-spacing: .3em; text-transform: uppercase; color: rgba(77,216,255,0.85);">{{ t.heroKicker }}</p>
+        <h1 style="position: relative; margin: 0; font-family: {{ displayFont }}; font-weight: 400; font-size: clamp(40px, 7.5vw, 96px); line-height: 1.1; color: #eafcf1; text-shadow: 0 0 40px rgba(57,255,136,0.28);">{{ t.heroName }}</h1>
+        <p style="position: relative; margin: 22px auto 0; max-width: 600px; font-size: clamp(15px, 1.5vw, 18px); line-height: 1.85; color: rgba(217,245,230,0.7); text-wrap: pretty;">{{ t.heroTagline }}</p>
+        <div style="position: relative; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 30px;">
+          <sc-for list="{{ t.heroStack }}" as="chip" hint-placeholder-count="3">
+            <span style="font-family: {{ monoFont }}; font-size: 12px; letter-spacing: .05em; padding: 8px 16px; border-radius: 4px; color: #39ff88; border: 1px solid rgba(57,255,136,0.3); background: rgba(11,20,15,0.6);">{{ chip }}</span>
+          </sc-for>
+        </div>
+        <div style="position: relative; display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; margin-top: 40px;">
+          <a href="#projects" style="padding: 14px 30px; border-radius: 4px; font-family: {{ monoFont }}; font-size: 13px; letter-spacing: .06em; color: #052014; background: linear-gradient(120deg, #39ff88, #4dd8ff); box-shadow: 0 0 30px rgba(57,255,136,0.3);" style-hover="color: #052014; box-shadow: 0 0 46px rgba(57,255,136,0.5);">{{ t.ctaWork }}</a>
+          <a href="#contact" style="padding: 14px 30px; border-radius: 4px; font-family: {{ monoFont }}; font-size: 13px; letter-spacing: .06em; color: #d9f5e6; border: 1px solid rgba(77,216,255,0.4);" style-hover="color: #fff; border-color: rgba(77,216,255,0.7);">{{ t.ctaContact }}</a>
+        </div>
+      </div>
+      <div style="position: absolute; inset-block-end: 34px; inset-inline-start: 50%; transform: translateX(-50%); font-family: {{ monoFont }}; font-size: 11px; letter-spacing: .25em; color: rgba(217,245,230,0.4); animation: mx-pulse 3s ease-in-out infinite;">{{ t.scroll }}</div>
+    </section>
+
+    <section id="about" data-reveal="1" style="max-width: 1100px; margin: 0 auto; padding: 90px clamp(20px, 6vw, 60px); opacity: 0; transform: translateY(60px); transition: opacity 1s ease, transform 1s cubic-bezier(.2,.7,.2,1);">
+      <p style="margin: 0 0 14px; font-family: {{ monoFont }}; font-size: 12px; letter-spacing: .3em; color: rgba(77,216,255,0.8);">01 / {{ t.aboutTag }}</p>
+      <h2 style="margin: 0 0 40px; font-family: {{ displayFont }}; font-weight: 400; font-size: clamp(32px, 4.6vw, 54px); color: #eafcf1;">{{ t.aboutTitle }}</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: clamp(24px, 4vw, 60px);">
+        <div>
+          <sc-for list="{{ t.aboutBody }}" as="para" hint-placeholder-count="3">
+            <p style="margin: 0 0 20px; font-size: clamp(15px, 1.3vw, 17px); line-height: 1.95; color: rgba(217,245,230,0.75); text-wrap: pretty;">{{ para }}</p>
+          </sc-for>
+        </div>
+        <div style="display: grid; gap: 14px; align-content: start;">
+          <sc-for list="{{ t.aboutFacts }}" as="fact" hint-placeholder-count="2">
+            <div style="padding: 18px 20px; border-radius: 6px; border: 1px solid rgba(57,255,136,0.2); background: rgba(9,16,12,0.6); border-inline-start: 2px solid rgba(57,255,136,0.55);">
+              <div style="font-family: {{ monoFont }}; font-size: 11px; letter-spacing: .18em; color: rgba(57,255,136,0.85); margin-bottom: 8px;">{{ fact.label }}</div>
+              <div style="font-size: 15px; line-height: 1.7; color: #d9f5e6;">{{ fact.value }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </section>
+
+    <section id="skills" style="position: relative;">
+      <div data-reveal="1" style="max-width: 1100px; margin: 0 auto; padding: 90px clamp(20px, 6vw, 60px) 20px; opacity: 0; transform: translateY(60px); transition: opacity 1s ease, transform 1s cubic-bezier(.2,.7,.2,1);">
+        <p style="margin: 0 0 14px; font-family: {{ monoFont }}; font-size: 12px; letter-spacing: .3em; color: rgba(77,216,255,0.8);">02 / {{ t.skillsTag }}</p>
+        <h2 style="margin: 0; font-family: {{ displayFont }}; font-weight: 400; font-size: clamp(32px, 4.6vw, 54px); color: #eafcf1;">{{ t.skillsTitle }}</h2>
+      </div>
+
+      <div ref="{{ flyRef }}" style="position: relative; height: 260vh;">
+        <div style="position: sticky; top: 0; height: 100vh; overflow: hidden; perspective: 600px; perspective-origin: 50% 50%;">
+          <div ref="{{ flyStageRef }}" style="position: absolute; inset: 0;">
+            <sc-for list="{{ flyingWords }}" as="w" hint-placeholder-count="10">
+              <div data-fly-word="{{ w.word }}" style="{{ w.style }}">{{ w.word }}</div>
+            </sc-for>
+          </div>
+          <div style="position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at 50% 50%, rgba(5,8,7,0) 30%, rgba(5,8,7,0.9) 92%);"></div>
+        </div>
+      </div>
+
+      <div data-reveal="1" style="max-width: 1100px; margin: 0 auto; padding: 20px clamp(20px, 6vw, 60px) 90px; opacity: 0; transform: translateY(60px); transition: opacity 1s ease, transform 1s cubic-bezier(.2,.7,.2,1);">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px;">
+          <sc-for list="{{ t.skillGroups }}" as="group" hint-placeholder-count="4">
+            <div style="padding: 26px 24px; border-radius: 8px; border: 1px solid rgba(57,255,136,0.16); background: rgba(9,16,12,0.55);" style-hover="border-color: rgba(57,255,136,0.4);">
+              <div style="font-family: {{ monoFont }}; font-size: 16px; color: #4dd8ff; margin-bottom: 16px;">{{ group.title }}</div>
+              <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                <sc-for list="{{ group.items }}" as="skill" hint-placeholder-count="5">
+                  <span style="font-size: 12px; padding: 6px 12px; border-radius: 4px; color: rgba(217,245,230,0.8); background: rgba(57,255,136,0.08); border: 1px solid rgba(57,255,136,0.16);">{{ skill }}</span>
+                </sc-for>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </section>
+
+    <section id="experience" data-reveal="1" style="max-width: 980px; margin: 0 auto; padding: 90px clamp(20px, 6vw, 60px); opacity: 0; transform: translateY(60px); transition: opacity 1s ease, transform 1s cubic-bezier(.2,.7,.2,1);">
+      <p style="margin: 0 0 14px; font-family: {{ monoFont }}; font-size: 12px; letter-spacing: .3em; color: rgba(77,216,255,0.8);">03 / {{ t.expTag }}</p>
+      <h2 style="margin: 0 0 46px; font-family: {{ displayFont }}; font-weight: 400; font-size: clamp(32px, 4.6vw, 54px); color: #eafcf1;">{{ t.expTitle }}</h2>
+      <div style="display: grid; gap: 4px; border-inline-start: 1px solid rgba(57,255,136,0.28); padding-inline-start: clamp(22px, 4vw, 42px);">
+        <sc-for list="{{ t.experience }}" as="job" hint-placeholder-count="4">
+          <div style="position: relative; padding: 24px 0;">
+            <span style="position: absolute; inset-inline-start: calc(clamp(22px, 4vw, 42px) * -1 - 5px); top: 34px; width: 9px; height: 9px; border-radius: 50%; background: #39ff88; box-shadow: 0 0 14px rgba(57,255,136,0.9);"></span>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: baseline;">
+              <h3 style="margin: 0; font-size: clamp(18px, 1.9vw, 23px); font-weight: 500; color: #eafcf1; font-family: {{ monoFont }};">{{ job.role }}</h3>
+              <span style="font-size: 13px; letter-spacing: .05em; color: rgba(77,216,255,0.85); font-family: {{ monoFont }};">{{ job.period }}</span>
+            </div>
+            <p style="margin: 8px 0 0; font-size: 15px; line-height: 1.85; color: rgba(217,245,230,0.68);">{{ job.org }}</p>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <section id="projects" data-reveal="1" style="max-width: 1120px; margin: 0 auto; padding: 90px clamp(20px, 6vw, 60px); opacity: 0; transform: translateY(60px); transition: opacity 1s ease, transform 1s cubic-bezier(.2,.7,.2,1);">
+      <p style="margin: 0 0 14px; font-family: {{ monoFont }}; font-size: 12px; letter-spacing: .3em; color: rgba(77,216,255,0.8);">04 / {{ t.projTag }}</p>
+      <h2 style="margin: 0 0 44px; font-family: {{ displayFont }}; font-weight: 400; font-size: clamp(32px, 4.6vw, 54px); color: #eafcf1;">{{ t.projTitle }}</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 22px;">
+        <sc-for list="{{ t.projects }}" as="p" hint-placeholder-count="4">
+          <article style="position: relative; overflow: hidden; border-radius: 10px; border: 1px solid rgba(57,255,136,0.2); background: linear-gradient(160deg, rgba(10,18,13,0.85), rgba(5,8,7,0.8)); transition: transform .45s ease, border-color .45s ease;" style-hover="transform: translateY(-6px); border-color: rgba(57,255,136,0.5);">
+            <div style="position: relative; width: 100%; aspect-ratio: 16/10; overflow: hidden; background: #071009;">
+              <sc-if value="{{ p.img }}" hint-placeholder-val="{{ false }}">
+                <img data-src="{{ p.img }}" alt="{{ p.name }}" style="width: 100%; height: 100%; object-fit: cover; display: block; filter: saturate(0.9) contrast(1.05); transition: transform .6s ease;" />
+              </sc-if>
+              <sc-if value="{{ p.noImg }}" hint-placeholder-val="{{ false }}">
+                <div style="width: 100%; height: 100%; display: grid; place-items: center; background: repeating-linear-gradient(45deg, rgba(57,255,136,0.05) 0 10px, transparent 10px 20px);">
+                  <span style="font-family: {{ monoFont }}; font-size: 13px; letter-spacing: .1em; color: rgba(57,255,136,0.5);">{{ p.buildLabel }}</span>
+                </div>
+              </sc-if>
+              <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(5,8,7,0.85), transparent 50%);"></div>
+            </div>
+            <div style="padding: 26px 26px 30px;">
+              <div style="font-family: {{ monoFont }}; font-size: 11px; letter-spacing: .18em; color: rgba(57,255,136,0.85); margin-bottom: 12px;">{{ p.status }}</div>
+              <h3 style="margin: 0 0 12px; font-family: {{ displayFont }}; font-weight: 400; font-size: 25px; color: #eafcf1;">{{ p.name }}</h3>
+              <p style="margin: 0 0 18px; font-size: 14px; line-height: 1.9; color: rgba(217,245,230,0.72); text-wrap: pretty;">{{ p.desc }}</p>
+              <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px;">
+                <sc-for list="{{ p.tags }}" as="tag" hint-placeholder-count="3">
+                  <span style="font-size: 11px; padding: 6px 11px; border-radius: 4px; color: rgba(217,245,230,0.7); border: 1px solid rgba(77,216,255,0.25);">{{ tag }}</span>
+                </sc-for>
+              </div>
+              <sc-if value="{{ p.link }}" hint-placeholder-val="{{ false }}">
+                <a href="{{ p.link }}" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 8px; font-family: {{ monoFont }}; font-size: 13px; letter-spacing: .05em; color: #052014; background: linear-gradient(120deg, #39ff88, #4dd8ff); padding: 10px 20px; border-radius: 4px;" style-hover="color: #052014; box-shadow: 0 0 24px rgba(57,255,136,0.4);">{{ p.linkLabel }} ↗</a>
+              </sc-if>
+            </div>
+          </article>
+        </sc-for>
+      </div>
+    </section>
+
+    <section id="contact" data-reveal="1" style="max-width: 880px; margin: 0 auto; padding: 100px clamp(20px, 6vw, 60px) 140px; text-align: center; opacity: 0; transform: translateY(60px); transition: opacity 1s ease, transform 1s cubic-bezier(.2,.7,.2,1);">
+      <p style="margin: 0 0 14px; font-family: {{ monoFont }}; font-size: 12px; letter-spacing: .3em; color: rgba(77,216,255,0.8);">05 / {{ t.contactTag }}</p>
+      <h2 style="margin: 0 0 18px; font-family: {{ displayFont }}; font-weight: 400; font-size: clamp(32px, 4.6vw, 54px); color: #eafcf1;">{{ t.contactTitle }}</h2>
+      <p style="margin: 0 auto 42px; max-width: 500px; font-size: 15px; line-height: 1.95; color: rgba(217,245,230,0.7);">{{ t.contactLead }}</p>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; text-align: start;">
+        <sc-for list="{{ t.contacts }}" as="c" hint-placeholder-count="3">
+          <a href="{{ c.href }}" style="display: block; padding: 20px 22px; border-radius: 8px; border: 1px solid rgba(57,255,136,0.22); background: rgba(9,16,12,0.6); color: #d9f5e6;" style-hover="border-color: rgba(57,255,136,0.5); background: rgba(13,24,17,0.7);">
+            <div style="font-family: {{ monoFont }}; font-size: 11px; letter-spacing: .16em; color: rgba(57,255,136,0.85); margin-bottom: 9px;">{{ c.label }}</div>
+            <div style="font-size: 14px; direction: ltr; text-align: start; font-family: {{ monoFont }};">{{ c.value }}</div>
+          </a>
+        </sc-for>
+      </div>
+      <p style="margin: 64px 0 0; font-family: {{ monoFont }}; font-size: 12px; letter-spacing: .1em; color: rgba(217,245,230,0.35);">{{ t.footer }}</p>
+    </section>
+  </main>
+
+  <sc-if value="{{ loading }}" hint-placeholder-val="{{ true }}">
+    <div style="position: fixed; inset: 0; z-index: 90; background: #050807; display: grid; place-items: center; opacity: {{ loaderOpacity }}; transition: opacity 1s ease;">
+      <div style="width: min(560px, 88vw); font-family: {{ monoFont }};">
+        <sc-for list="{{ termLines }}" as="line" hint-placeholder-count="5">
+          <div style="font-size: 13px; line-height: 1.9; color: rgba(57,255,136,0.85); white-space: pre-wrap;">{{ line }}</div>
+        </sc-for>
+        <div style="margin-top: 18px; height: 3px; background: rgba(57,255,136,0.12); border-radius: 2px; overflow: hidden;">
+          <div style="height: 100%; width: {{ progress }}%; background: linear-gradient(90deg, #39ff88, #4dd8ff); transition: width .1s linear;"></div>
+        </div>
+        <div style="margin-top: 12px; display: flex; justify-content: space-between; font-size: 12px; color: rgba(77,216,255,0.85);">
+          <span>{{ t.loadingLabel }}</span>
+          <span>{{ progress }}%<span style="animation: mx-blink 1s step-end infinite;">_</span></span>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const CONTENT = {
+  ar: {
+    brand: "م. سعادات",
+    langToggle: "EN",
+    nav: [
+      { label: "نبذة", href: "#about" },
+      { label: "المهارات", href: "#skills" },
+      { label: "الخبرة", href: "#experience" },
+      { label: "مشاريع", href: "#projects" },
+      { label: "تواصل", href: "#contact" }
+    ],
+    heroKicker: "مطوّر ويب متكامل",
+    heroName: "محمد جميل سعادات",
+    heroTagline: "أبني تجارب ويب عربية سريعة، متاحة للجميع، ومصمّمة من الأساس لاتجاه الكتابة من اليمين إلى اليسار.",
+    heroStack: ["React", "Next.js", "Laravel"],
+    ctaWork: "شاهد المشاريع",
+    ctaContact: "تواصل معي",
+    scroll: "انزل للأسفل",
+    loadingLabel: "جاري التحميل",
+    photoHint: "صورتك هنا",
+    photo: "profile-portrait.jpg",
+    aboutTag: "نبذة",
+    aboutTitle: "من أنا",
+    aboutBody: [
+      "دبلوم هندسة برمجيات من جامعة دمشق (٢٠٢٣–٢٠٢٥).",
+      "أعمل حالياً كمتدرّب مطوّر واجهات أمامية في Connect Digital Agency.",
+      "يشغلني التقاطع بين الأداء وإتاحة الوصول والدعم الصحيح لاتجاه RTL: واجهات تُقاس بالمللي ثانية، وتعمل لكل مستخدم، وتقرأ بالعربية كما لو أنها كُتبت لها أولاً."
+    ],
+    aboutFacts: [
+      { label: "التعليم", value: "هندسة برمجيات — جامعة دمشق" },
+      { label: "الحالياً", value: "متدرّب واجهات أمامية — Connect Digital Agency" }
+    ],
+    skillsTag: "المهارات",
+    skillsTitle: "المهارات",
+    skillGroups: [
+      { title: "الواجهة الأمامية", items: ["React", "Next.js", "TypeScript", "Tailwind CSS", "Sass", "Zustand", "React Query", "Framer Motion", "Three.js"] },
+      { title: "الواجهة الخلفية", items: ["Laravel / PHP", "FastAPI (Python)"] },
+      { title: "الاختبارات", items: ["Jest", "React Testing Library", "Playwright"] },
+      { title: "الأداء", items: ["Core Web Vitals", "إتاحة الوصول (a11y)", "تصميم RTL أولاً"] }
+    ],
+    expTag: "الخبرة",
+    expTitle: "الخبرة",
+    experience: [
+      { role: "متدرّب مطوّر واجهات أمامية", org: "Connect Digital Agency", period: "أيار ٢٠٢٦ — حتى الآن" },
+      { role: "متدرّب اختبار وضمان جودة", org: "Snam — السعودية", period: "آذار — نيسان ٢٠٢٦" },
+      { role: "مطوّر مبتدئ", org: "MSA DataX — برلين، عن بعد", period: "كانون الأول ٢٠٢٥ — آذار ٢٠٢٦" },
+      { role: "مطوّر واجهات أمامية", org: "Tkram Ride", period: "أيلول ٢٠٢٥ — آب ٢٠٢٦" }
+    ],
+    projTag: "مشاريع",
+    projTitle: "مشاريع",
+    projects: [
+      { status: "قيد التطوير", name: "Studio", desc: "منصّة SaaS لبناء المواقع بالعربية، RTL أولاً، بأسلوب Wix / Webflow وموجّهة للأعمال الصغيرة الناطقة بالعربية.", tags: ["Next.js", "TypeScript", "RTL"], noImg: true, buildLabel: "قيد البناء" },
+      { status: "منشور", name: "Raumstudio BenTo'o", desc: "صفحة هبوط احترافية لشركة أرضيات وباركيه في برلين — تصميم أنيق ودافئ يركّز على الحرفية والثقة.", tags: ["React", "Next.js", "Responsive"], img: "raumstudio-card.jpg", link: "https://raumstudio-bentoo-website.vercel.app/", linkLabel: "زيارة الموقع" },
+      { status: "منشور", name: "SK Restaurant", desc: "موقع مطعم فاخر في برلين مع نظام حجوزات وقائمة طعام وتبديل لغة — أجواء داكنة وذهبية أنيقة.", tags: ["React", "Next.js", "i18n"], img: "skrestaurant-card.jpg", link: "https://skresturant.vercel.app/", linkLabel: "زيارة الموقع" },
+      { status: "منشور", name: "Laqta Store", desc: "منصّة تجارة إلكترونية متكاملة مع توصيل الطلبات وتتبّعها — أدير فيها الواجهة الخلفية ونشر الخادم.", tags: ["Laravel", "Next.js", "توصيل"], noImg: true, buildLabel: "خلفية + نشر" }
+    ],
+    contactTag: "تواصل",
+    contactTitle: "تواصل",
+    contactLead: "مفتوح للفرص والتعاون. أسرع طريقة للوصول إليّ هي البريد الإلكتروني.",
+    contacts: [
+      { label: "البريد الإلكتروني", value: "androo2050@gmail.com", href: "mailto:androo2050@gmail.com" },
+      { label: "الهاتف", value: "0958389235", href: "tel:0958389235" },
+      { label: "LinkedIn", value: "in/mohamad-saadat-7b293333a", href: "https://linkedin.com/in/mohamad-saadat-7b293333a" }
+    ],
+    footer: "محمد جميل سعادات — ٢٠٢٦"
+  },
+  en: {
+    brand: "M. Saadat",
+    langToggle: "عربي",
+    nav: [
+      { label: "About", href: "#about" },
+      { label: "Skills", href: "#skills" },
+      { label: "Experience", href: "#experience" },
+      { label: "Projects", href: "#projects" },
+      { label: "Contact", href: "#contact" }
+    ],
+    heroKicker: "Full-Stack Developer",
+    heroName: "Mohammed Jamil Saadat",
+    heroTagline: "I build fast, accessible, RTL-first Arabic web experiences — designed for right-to-left from the first line, not retrofitted.",
+    heroStack: ["React", "Next.js", "Laravel"],
+    ctaWork: "View projects",
+    ctaContact: "Get in touch",
+    scroll: "SCROLL DOWN",
+    loadingLabel: "LOADING",
+    photoHint: "Your photo",
+    photo: "profile-portrait.jpg",
+    aboutTag: "ABOUT",
+    aboutTitle: "About",
+    aboutBody: [
+      "Software Engineering Diploma, Damascus University (2023–2025).",
+      "Currently a Front-End Developer trainee at Connect Digital Agency.",
+      "I'm drawn to the intersection of performance, accessibility, and correct RTL support: interfaces measured in milliseconds, usable by everyone, and reading in Arabic as if written for it first."
+    ],
+    aboutFacts: [
+      { label: "EDUCATION", value: "Software Engineering — Damascus University" },
+      { label: "CURRENTLY", value: "Front-End trainee — Connect Digital Agency" }
+    ],
+    skillsTag: "SKILLS",
+    skillsTitle: "Skills",
+    skillGroups: [
+      { title: "Frontend", items: ["React", "Next.js", "TypeScript", "Tailwind CSS", "Sass", "Zustand", "React Query", "Framer Motion", "Three.js"] },
+      { title: "Backend", items: ["Laravel / PHP", "FastAPI (Python)"] },
+      { title: "Testing", items: ["Jest", "React Testing Library", "Playwright"] },
+      { title: "Performance", items: ["Core Web Vitals", "Accessibility (a11y)", "RTL-first design"] }
+    ],
+    expTag: "EXPERIENCE",
+    expTitle: "Experience",
+    experience: [
+      { role: "Front-End Developer Trainee", org: "Connect Digital Agency", period: "May 2026 — present" },
+      { role: "QA / Testing Trainee", org: "Snam, Saudi Arabia", period: "Mar — Apr 2026" },
+      { role: "Junior Developer", org: "MSA DataX — Berlin, remote", period: "Dec 2025 — Mar 2026" },
+      { role: "Front-End Developer", org: "Tkram Ride", period: "Sep 2025 — Aug 2026" }
+    ],
+    projTag: "PROJECTS",
+    projTitle: "Projects",
+    projects: [
+      { status: "IN PROGRESS", name: "Studio", desc: "An RTL-first Arabic website-builder SaaS in the spirit of Wix and Webflow, aimed at Arabic-speaking small businesses.", tags: ["Next.js", "TypeScript", "RTL"], noImg: true, buildLabel: "BUILDING" },
+      { status: "SHIPPED", name: "Raumstudio BenTo'o", desc: "A polished landing page for a Berlin flooring & parquet craftsman studio — warm, elegant design focused on craftsmanship and trust.", tags: ["React", "Next.js", "Responsive"], img: "raumstudio-card.jpg", link: "https://raumstudio-bentoo-website.vercel.app/", linkLabel: "Visit site" },
+      { status: "SHIPPED", name: "SK Restaurant", desc: "A fine-dining restaurant website in Berlin with reservations, a menu, and language switching — an elegant dark-and-gold atmosphere.", tags: ["React", "Next.js", "i18n"], img: "skrestaurant-card.jpg", link: "https://skresturant.vercel.app/", linkLabel: "Visit site" },
+      { status: "SHIPPED", name: "Laqta Store", desc: "A full-stack e-commerce platform with order delivery and tracking — I own the backend and server deployment.", tags: ["Laravel", "Next.js", "Delivery"], noImg: true, buildLabel: "BACKEND + DEPLOY" }
+    ],
+    contactTag: "CONTACT",
+    contactTitle: "Contact",
+    contactLead: "Open to opportunities and collaboration. Email is the fastest way to reach me.",
+    contacts: [
+      { label: "EMAIL", value: "androo2050@gmail.com", href: "mailto:androo2050@gmail.com" },
+      { label: "PHONE", value: "0958389235", href: "tel:0958389235" },
+      { label: "LINKEDIN", value: "in/mohamad-saadat-7b293333a", href: "https://linkedin.com/in/mohamad-saadat-7b293333a" }
+    ],
+    footer: "Mohammed Jamil Saadat — 2026"
+  }
+};
+
+const TERM_LINES = [
+  "$ npm install --save-dev @saadat/portfolio",
+  "> resolving dependencies...",
+  "> compiling components (react, next, laravel)...",
+  "> optimizing for RTL and a11y...",
+  "root@saadat:~$ starting server"
+];
+
+const FLY_WORDS = ["React", "Next.js", "TypeScript", "Tailwind CSS", "Laravel", "FastAPI", "Zustand", "React Query", "Framer Motion", "Three.js", "Jest", "Playwright", "a11y", "RTL-first", "PHP", "Python"];
+
+class Component extends DCLogic {
+  state = { lang: "ar", loading: true, progress: 0, termIdx: 0, skillsProgress: 0 };
+  bgRef = React.createRef();
+  flyRef = React.createRef();
+  gridRef = React.createRef();
+  flyStageRef = React.createRef();
+  mouse = { x: 0, y: 0, tx: 0, ty: 0 };
+
+  get reduced() {
+    return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  }
+
+  componentDidMount() {
+    this.startLoader();
+    this.initMatrixRain();
+    this.onScroll = () => {
+      if (this.scrollScheduled) return;
+      this.scrollScheduled = true;
+      requestAnimationFrame(() => {
+        this.scrollScheduled = false;
+        this.updateSkillsProgress();
+        this.paintFlyingWords();
+      });
+    };
+    this.onMove = (e) => {
+      if (this.reduced) return;
+      this.mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+      this.mouse.y = (e.clientY / window.innerHeight) * 2 - 1;
+      if (this.gridRef.current) {
+        this.gridRef.current.style.transform = "translate(" + (this.mouse.x * 14) + "px," + (this.mouse.y * 14) + "px)";
+      }
+    };
+    window.addEventListener("scroll", this.onScroll, { passive: true });
+    window.addEventListener("pointermove", this.onMove, { passive: true });
+    window.addEventListener("resize", this.resizeRain);
+    this.observeReveals();
+    this.paintFlyingWords();
+    this.syncImages();
+    this.imgTimer = setInterval(() => this.syncImages(), 400);
+    setTimeout(() => clearInterval(this.imgTimer), 8000);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("scroll", this.onScroll);
+    window.removeEventListener("pointermove", this.onMove);
+    window.removeEventListener("resize", this.resizeRain);
+    clearInterval(this.rainInterval);
+    clearInterval(this.lint);
+    clearTimeout(this.ltimer);
+    clearInterval(this.imgTimer);
+    if (this.io) this.io.disconnect();
+  }
+
+  componentDidUpdate(prev) {
+    this.syncImages();
+    if (prev.state && prev.state.lang !== this.state.lang) this.observeReveals();
+  }
+
+  syncImages() {
+    document.querySelectorAll("img[data-src]").forEach((el) => {
+      const s = el.getAttribute("data-src");
+      if (!s || s.indexOf("{{") !== -1) return;
+      if (el.getAttribute("src") !== s) el.setAttribute("src", s);
+    });
+  }
+
+  observeReveals() {
+    if (this.io) this.io.disconnect();
+    const show = (el) => { el.style.opacity = "1"; el.style.transform = "translateY(0)"; };
+    if (this.reduced) { document.querySelectorAll("[data-reveal]").forEach(show); return; }
+    this.io = new IntersectionObserver((entries) => {
+      entries.forEach((en) => { if (en.isIntersecting) { show(en.target); this.io.unobserve(en.target); } });
+    }, { threshold: 0.12 });
+    setTimeout(() => document.querySelectorAll("[data-reveal]").forEach((el) => this.io.observe(el)), 60);
+  }
+
+  updateSkillsProgress() {
+    const el = this.flyRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const total = rect.height - window.innerHeight;
+    let p = total > 0 ? (-rect.top) / total : 0;
+    p = Math.max(0, Math.min(1, p));
+    this.state.skillsProgress = p;
+  }
+
+  /* ---------- terminal loading sequence: time-driven, never rAF-gated ---------- */
+  startLoader() {
+    const dur = this.reduced ? 500 : 2600;
+    const t0 = performance.now();
+    this.lint = setInterval(() => {
+      const p = Math.min(1, (performance.now() - t0) / dur);
+      const pct = Math.round(p * 100);
+      const idx = Math.min(TERM_LINES.length, Math.floor(p * (TERM_LINES.length + 1)));
+      if (pct !== this.state.progress || idx !== this.state.termIdx) this.setState({ progress: pct, termIdx: idx });
+      if (p >= 1) clearInterval(this.lint);
+    }, 50);
+    this.ltimer = setTimeout(() => {
+      this.setState({ progress: 100, termIdx: TERM_LINES.length, fading: true });
+      setTimeout(() => this.setState({ loading: false }), 900);
+    }, dur + 100);
+  }
+
+  /* ---------- ambient matrix rain, canvas 2D ---------- */
+  initMatrixRain() {
+    const canvas = this.bgRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    const chars = "01アイウエオカキクケコサシスセソ+-*/<>{}[]#$%&=";
+    let cols = 0, drops = [];
+    const setup = () => {
+      const dpr = 1;
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      cols = Math.floor(canvas.width / 16);
+      drops = new Array(cols).fill(0).map(() => Math.random() * -canvas.height / 16);
+    };
+    setup();
+    this.resizeRain = () => setup();
+    if (this.reduced) return;
+    const draw = () => {
+      ctx.fillStyle = "rgba(5,8,7,0.09)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.font = "14px monospace";
+      for (let i = 0; i < cols; i++) {
+        const ch = chars[Math.floor(Math.random() * chars.length)];
+        const x = i * 16;
+        const y = drops[i] * 16;
+        ctx.fillStyle = Math.random() < 0.06 ? "rgba(77,216,255,0.85)" : "rgba(57,255,136,0.65)";
+        ctx.fillText(ch, x, y);
+        drops[i] += 1;
+        if (y > canvas.height && Math.random() > 0.975) drops[i] = 0;
+      }
+    };
+    this.rainInterval = setInterval(draw, 90);
+  }
+
+  paintFlyingWords() {
+    const stage = this.flyStageRef.current;
+    if (!stage) return;
+    const words = this.computeFlyingWords();
+    words.forEach((w) => {
+      const el = stage.querySelector('[data-fly-word="' + w.word.replace(/"/g, '') + '"]');
+      if (el) el.style.cssText = w.style;
+    });
+  }
+
+  computeFlyingWords() {
+    if (!this.wordPhases) {
+      this.wordPhases = FLY_WORDS.map((_, i) => ({
+        phase: i / FLY_WORDS.length,
+        x: (Math.random() - 0.5) * 70,
+        y: (Math.random() - 0.5) * 60
+      }));
+    }
+    const p = this.state.skillsProgress;
+    return FLY_WORDS.map((word, i) => {
+      const ph = this.wordPhases[i];
+      let local = (p * 1.6 - ph.phase * 0.9 + 1) % 1;
+      const z = -1400 + local * 1700;
+      const scale = Math.max(0.05, 1 + z / 900);
+      let opacity = 1;
+      if (local < 0.12) opacity = local / 0.12;
+      if (local > 0.82) opacity = Math.max(0, (1 - local) / 0.18);
+      if (z > 240) opacity = 0;
+      const x = ph.x, y = ph.y;
+      const style = "position:absolute; top:50%; left:50%; transform: translate3d(" + x + "vw," + y + "vh," + z + "px) translate(-50%,-50%); font-family:" + (this.props.monoFont || "'JetBrains Mono', monospace") + "; font-weight:600; font-size:34px; color:" + (i % 4 === 0 ? "#4dd8ff" : "#39ff88") + "; opacity:" + opacity.toFixed(3) + "; text-shadow:0 0 24px rgba(57,255,136,0.5); white-space:nowrap; pointer-events:none;";
+      return { word, style };
+    });
+  }
+
+  renderVals() {
+    const lang = this.state.lang;
+    const ar = lang === "ar";
+    const R = (typeof window !== "undefined" && window.__resources) || {};
+    const ids = { "raumstudio-card.jpg": "raumstudio", "skrestaurant-card.jpg": "skrestaurant" };
+    const base = CONTENT[lang];
+    const t = Object.assign({}, base, {
+      projects: base.projects.map((p) => p.img ? Object.assign({}, p, { img: R[ids[p.img]] || p.img }) : p)
+    });
+    const monoFont = "'JetBrains Mono', monospace";
+    return {
+      t: t,
+      dir: ar ? "rtl" : "ltr",
+      displayFont: ar ? "'Rakkas', serif" : "'JetBrains Mono', monospace",
+      monoFont: monoFont,
+      bodyFont: ar ? "'IBM Plex Sans Arabic', sans-serif" : "'IBM Plex Sans', sans-serif",
+      loading: this.state.loading,
+      loaderOpacity: this.state.fading ? 0 : 1,
+      progress: this.state.progress,
+      termLines: TERM_LINES.slice(0, this.state.termIdx),
+      bgRef: this.bgRef,
+      flyRef: this.flyRef,
+      flyingWords: this.computeFlyingWords(),
+      gridRef: this.gridRef,
+      flyStageRef: this.flyStageRef,
+      toggleLang: () => this.setState({ lang: this.state.lang === "ar" ? "en" : "ar" })
+    };
+  }
+}
+
+</script>
+</body>
+</html>

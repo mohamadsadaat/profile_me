@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+<link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&family=Cormorant+Garamond:wght@300;400;600&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<style>
+  html { background: #04040a; scroll-behavior: smooth; }
+  body { margin: 0; background: #04040a; color: #efe9f6; overflow-x: hidden; }
+  a { color: #ffbe6b; text-decoration: none; }
+  a:hover { color: #fff1d8; }
+  ::selection { background: rgba(255,168,70,0.3); }
+  @keyframes hb-spin { to { transform: rotate(360deg); } }
+  @keyframes hb-pulse { 0%,100% { opacity: .45; } 50% { opacity: .9; } }
+  @keyframes hb-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+<meta name="ext-resource-dependency" content="raumstudio-card.jpg" data-resource-id="raumstudio" />
+<meta name="ext-resource-dependency" content="skrestaurant-card.jpg" data-resource-id="skrestaurant" />
+<template id="__bundler_thumbnail" data-bg-color="#04040a">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" fill="#04040a"/><ellipse cx="100" cy="100" rx="66" ry="20" fill="none" stroke="#ffb04a" stroke-width="6" opacity="0.85"/><ellipse cx="100" cy="100" rx="80" ry="26" fill="none" stroke="#a06bff" stroke-width="3" opacity="0.5"/><circle cx="100" cy="100" r="26" fill="#04040a"/><circle cx="100" cy="100" r="27" fill="none" stroke="#ffe0b0" stroke-width="1.5"/></svg>
+</template>
+</helmet>
+
+<div dir="{{ dir }}" style="position: relative; min-height: 100vh; font-family: {{ bodyFont }}; background: #04040a; overflow: hidden;">
+
+  <canvas ref="{{ bgRef }}" style="position: fixed; inset: 0; width: 100%; height: 100%; display: block; z-index: 0;"></canvas>
+  <div style="position: fixed; inset: 0; z-index: 1; pointer-events: none; background: radial-gradient(circle at 50% 42%, rgba(4,4,10,0) 30%, rgba(4,4,10,0.55) 70%, rgba(4,4,10,0.92) 100%);"></div>
+
+  <nav style="position: fixed; top: 0; inset-inline: 0; z-index: 40; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 22px clamp(20px, 5vw, 64px); backdrop-filter: blur(14px); background: linear-gradient(to bottom, rgba(4,4,10,0.72), rgba(4,4,10,0)); border-bottom: 1px solid rgba(140,110,255,0.12);">
+    <a href="#top" style="display: flex; align-items: center; gap: 12px; color: #efe9f6;">
+      <span style="width: 26px; height: 26px; border-radius: 50%; background: radial-gradient(circle at 50% 50%, #05050b 42%, #ffb04a 46%, #a06bff 66%, rgba(160,107,255,0) 78%); box-shadow: 0 0 18px rgba(255,176,74,0.45);"></span>
+      <span style="font-family: {{ displayFont }}; font-size: 19px; letter-spacing: .04em;">{{ t.brand }}</span>
+    </a>
+    <div style="display: flex; align-items: center; gap: clamp(10px, 2vw, 30px);">
+      <sc-for list="{{ t.nav }}" as="item" hint-placeholder-count="5">
+        <a href="{{ item.href }}" style="font-size: 14px; letter-spacing: .06em; color: rgba(239,233,246,0.66); padding: 6px 2px; border-bottom: 1px solid transparent;" style-hover="color: #ffbe6b; border-bottom-color: rgba(255,190,107,0.5);">{{ item.label }}</a>
+      </sc-for>
+      <button onClick="{{ toggleLang }}" style="cursor: pointer; font-family: {{ bodyFont }}; font-size: 13px; letter-spacing: .12em; color: #ffd8a1; background: rgba(140,110,255,0.1); border: 1px solid rgba(255,176,74,0.35); border-radius: 999px; padding: 9px 18px;" style-hover="background: rgba(255,176,74,0.18); color: #fff3e0;">{{ t.langToggle }}</button>
+    </div>
+  </nav>
+
+  <main id="top" style="position: relative; z-index: 10;">
+
+    <section style="min-height: 100vh; display: grid; place-items: center; padding: 140px clamp(20px, 6vw, 80px) 100px; text-align: center;">
+      <div style="position: relative;">
+        <div style="position: absolute; inset: -8% -12%; pointer-events: none; background: radial-gradient(ellipse at 50% 45%, rgba(4,4,10,0.82) 0%, rgba(4,4,10,0.6) 55%, rgba(4,4,10,0) 100%);"></div>
+        <p style="position: relative; margin: 0 0 26px; font-size: 13px; letter-spacing: .34em; text-transform: uppercase; color: rgba(255,190,107,0.8);">{{ t.heroKicker }}</p>
+        <h1 style="position: relative; margin: 0; font-family: {{ displayFont }}; font-weight: 400; font-size: clamp(46px, 9vw, 132px); line-height: 1.06; letter-spacing: -0.01em; color: #fff; text-shadow: 0 0 60px rgba(255,176,74,0.28), 0 0 140px rgba(140,110,255,0.3);">{{ t.heroName }}</h1>
+        <p style="position: relative; margin: 26px auto 0; max-width: 620px; font-size: clamp(15px, 1.5vw, 19px); line-height: 1.9; color: rgba(239,233,246,0.72); text-wrap: pretty;">{{ t.heroTagline }}</p>
+        <div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 34px;">
+          <sc-for list="{{ t.heroStack }}" as="chip" hint-placeholder-count="3">
+            <span style="font-size: 13px; letter-spacing: .1em; padding: 9px 18px; border-radius: 999px; color: rgba(239,233,246,0.82); border: 1px solid rgba(140,110,255,0.3); background: rgba(20,14,44,0.5);">{{ chip }}</span>
+          </sc-for>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; margin-top: 44px;">
+          <a href="#projects" style="padding: 15px 34px; border-radius: 999px; font-size: 14px; letter-spacing: .1em; color: #16100a; background: linear-gradient(120deg, #ffcf7d, #ff9a35); box-shadow: 0 0 40px rgba(255,154,53,0.35);" style-hover="color: #16100a; box-shadow: 0 0 60px rgba(255,154,53,0.55);">{{ t.ctaWork }}</a>
+          <a href="#contact" style="padding: 15px 34px; border-radius: 999px; font-size: 14px; letter-spacing: .1em; color: #efe9f6; border: 1px solid rgba(140,110,255,0.4);" style-hover="color: #fff; border-color: rgba(255,190,107,0.6);">{{ t.ctaContact }}</a>
+        </div>
+      </div>
+      <div style="position: absolute; inset-block-end: 34px; inset-inline-start: 50%; transform: translateX(-50%); font-size: 11px; letter-spacing: .3em; color: rgba(239,233,246,0.4); animation: hb-pulse 3s ease-in-out infinite;">{{ t.scroll }}</div>
+    </section>
+
+    <section id="about" data-reveal="1" style="max-width: 1120px; margin: 0 auto; padding: 90px clamp(20px, 6vw, 60px); opacity: 0; transform: translateY(70px) scale(0.97); transition: opacity 1.1s ease, transform 1.1s cubic-bezier(.2,.7,.2,1);">
+      <p style="margin: 0 0 14px; font-size: 12px; letter-spacing: .34em; text-transform: uppercase; color: rgba(255,190,107,0.75);">01</p>
+      <h2 style="margin: 0 0 44px; font-family: {{ displayFont }}; font-weight: 400; font-size: clamp(34px, 5vw, 62px); color: #fff;">{{ t.aboutTitle }}</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: clamp(32px, 5vw, 72px); align-items: center;">
+        <div style="display: grid; place-items: center; animation: hb-float 9s ease-in-out infinite;">
+          <div style="position: relative; width: clamp(210px, 26vw, 300px); aspect-ratio: 1;">
+            <div style="position: absolute; inset: -22px; border-radius: 50%; background: conic-gradient(from 0deg, rgba(255,176,74,0.75), rgba(160,107,255,0.5), rgba(255,176,74,0.75)); filter: blur(16px); opacity: .55; animation: hb-spin 22s linear infinite;"></div>
+            <div id="profile-photo" style="position: absolute; inset: 0; border-radius: 50%; overflow: hidden; border: 1px solid rgba(255,190,107,0.5); background-color: #0a0716; box-shadow: inset 0 0 70px rgba(160,107,255,0.28), 0 0 60px rgba(255,176,74,0.25);">
+              <img src="profile-portrait.jpg" alt="{{ t.photoAlt }}" style="width: 100%; height: 100%; object-fit: cover; object-position: 50% 22%; display: block; filter: saturate(0.92) contrast(1.05);" />
+              <div style="position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at 50% 30%, rgba(255,176,74,0.1), rgba(4,4,10,0) 55%), linear-gradient(to top, rgba(4,4,10,0.55), rgba(4,4,10,0) 60%);"></div>
+            </div>
+            <div style="position: absolute; inset: -40px; border-radius: 50%; border: 1px dashed rgba(140,110,255,0.28); animation: hb-spin 40s linear infinite;"></div>
+          </div>
+        </div>
+        <div>
+          <sc-for list="{{ t.aboutBody }}" as="para" hint-placeholder-count="3">
+            <p style="margin: 0 0 22px; font-size: clamp(15px, 1.4vw, 18px); line-height: 2; color: rgba(239,233,246,0.76); text-wrap: pretty;">{{ para }}</p>
+          </sc-for>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 18px; margin-top: 34px;">
+            <sc-for list="{{ t.aboutFacts }}" as="fact" hint-placeholder-count="2">
+              <div style="padding: 18px 20px; border-radius: 14px; border: 1px solid rgba(140,110,255,0.22); background: rgba(14,10,32,0.55);">
+                <div style="font-size: 11px; letter-spacing: .2em; color: rgba(255,190,107,0.8); margin-bottom: 8px;">{{ fact.label }}</div>
+                <div style="font-size: 15px; line-height: 1.7; color: #efe9f6;">{{ fact.value }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="skills" data-reveal="1" style="max-width: 1120px; margin: 0 auto; padding: 90px clamp(20px, 6vw, 60px); opacity: 0; transform: translateY(70px) scale(0.97); transition: opacity 1.1s ease, transform 1.1s cubic-bezier(.2,.7,.2,1);">
+      <p style="margin: 0 0 14px; font-size: 12px; letter-spacing: .34em; text-transform: uppercase; color: rgba(255,190,107,0.75);">02</p>
+      <h2 style="margin: 0 0 44px; font-family: {{ displayFont }}; font-weight: 400; font-size: clamp(34px, 5vw, 62px); color: #fff;">{{ t.skillsTitle }}</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+        <sc-for list="{{ t.skills }}" as="group" hint-placeholder-count="4">
+          <div style="padding: 30px 28px; border-radius: 18px; border: 1px solid rgba(140,110,255,0.2); background: linear-gradient(160deg, rgba(22,16,48,0.72), rgba(8,6,18,0.6));" style-hover="border-color: rgba(255,190,107,0.45);">
+            <div style="font-family: {{ displayFont }}; font-size: 22px; color: #ffd8a1; margin-bottom: 20px;">{{ group.title }}</div>
+            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+              <sc-for list="{{ group.items }}" as="skill" hint-placeholder-count="5">
+                <span style="font-size: 13px; padding: 7px 14px; border-radius: 8px; color: rgba(239,233,246,0.8); background: rgba(140,110,255,0.12); border: 1px solid rgba(140,110,255,0.18);">{{ skill }}</span>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <section id="experience" data-reveal="1" style="max-width: 1000px; margin: 0 auto; padding: 90px clamp(20px, 6vw, 60px); opacity: 0; transform: translateY(70px) scale(0.97); transition: opacity 1.1s ease, transform 1.1s cubic-bezier(.2,.7,.2,1);">
+      <p style="margin: 0 0 14px; font-size: 12px; letter-spacing: .34em; text-transform: uppercase; color: rgba(255,190,107,0.75);">03</p>
+      <h2 style="margin: 0 0 48px; font-family: {{ displayFont }}; font-weight: 400; font-size: clamp(34px, 5vw, 62px); color: #fff;">{{ t.expTitle }}</h2>
+      <div style="display: grid; gap: 4px; border-inline-start: 1px solid rgba(140,110,255,0.28); padding-inline-start: clamp(22px, 4vw, 44px);">
+        <sc-for list="{{ t.experience }}" as="job" hint-placeholder-count="4">
+          <div style="position: relative; padding: 26px 0;">
+            <span style="position: absolute; inset-inline-start: calc(clamp(22px, 4vw, 44px) * -1 - 5px); top: 36px; width: 9px; height: 9px; border-radius: 50%; background: #ffb04a; box-shadow: 0 0 16px rgba(255,176,74,0.9);"></span>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: baseline;">
+              <h3 style="margin: 0; font-size: clamp(19px, 2vw, 25px); font-weight: 500; color: #fff;">{{ job.role }}</h3>
+              <span style="font-size: 13px; letter-spacing: .1em; color: rgba(255,190,107,0.85);">{{ job.period }}</span>
+            </div>
+            <p style="margin: 10px 0 0; font-size: 15px; line-height: 1.9; color: rgba(239,233,246,0.68);">{{ job.org }}</p>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <section id="projects" data-reveal="1" style="max-width: 1120px; margin: 0 auto; padding: 90px clamp(20px, 6vw, 60px); opacity: 0; transform: translateY(70px) scale(0.97); transition: opacity 1.1s ease, transform 1.1s cubic-bezier(.2,.7,.2,1);">
+      <p style="margin: 0 0 14px; font-size: 12px; letter-spacing: .34em; text-transform: uppercase; color: rgba(255,190,107,0.75);">04</p>
+      <h2 style="margin: 0 0 44px; font-family: {{ displayFont }}; font-weight: 400; font-size: clamp(34px, 5vw, 62px); color: #fff;">{{ t.projTitle }}</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 22px;">
+        <sc-for list="{{ t.projects }}" as="p" hint-placeholder-count="3">
+          <article style="position: relative; overflow: hidden; padding: 34px 30px 38px; border-radius: 20px; border: 1px solid rgba(140,110,255,0.22); background: linear-gradient(155deg, rgba(24,17,52,0.8), rgba(7,5,16,0.7)); transition: transform .5s ease, border-color .5s ease;" style-hover="transform: translateY(-8px); border-color: rgba(255,190,107,0.5);">
+            <div style="position: absolute; inset-block-start: -60px; inset-inline-end: -60px; width: 170px; height: 170px; border-radius: 50%; background: radial-gradient(circle, rgba(255,176,74,0.22), rgba(255,176,74,0) 70%);"></div>
+            <div style="position: relative;">
+              <sc-if value="{{ p.img }}" hint-placeholder-val="{{ false }}">
+                <a href="{{ p.link }}" target="_blank" rel="noopener" style="display: block; position: relative; overflow: hidden; border-radius: 14px; border: 1px solid rgba(255,190,107,0.28); margin-bottom: 22px; box-shadow: 0 0 34px rgba(160,107,255,0.18);" style-hover="border-color: rgba(255,190,107,0.7);">
+                  <img data-src="{{ p.img }}" alt="{{ p.name }}" style="display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; object-position: 50% 0%; transition: transform .8s cubic-bezier(.2,.7,.2,1), filter .6s ease; filter: saturate(0.9) brightness(0.82);" style-hover="transform: scale(1.06); filter: saturate(1.05) brightness(1);" />
+                  <div style="position: absolute; inset: 0; pointer-events: none; background: linear-gradient(to top, rgba(4,4,10,0.7), rgba(4,4,10,0) 55%);"></div>
+                </a>
+              </sc-if>
+              <div style="font-size: 11px; letter-spacing: .22em; color: rgba(255,190,107,0.85); margin-bottom: 14px;">{{ p.status }}</div>
+              <h3 style="margin: 0 0 14px; font-family: {{ displayFont }}; font-weight: 400; font-size: 28px; color: #fff;">{{ p.name }}</h3>
+              <p style="margin: 0 0 20px; font-size: 15px; line-height: 1.95; color: rgba(239,233,246,0.72); text-wrap: pretty;">{{ p.desc }}</p>
+              <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                <sc-for list="{{ p.tags }}" as="tag" hint-placeholder-count="3">
+                  <span style="font-size: 12px; padding: 6px 12px; border-radius: 7px; color: rgba(239,233,246,0.7); border: 1px solid rgba(140,110,255,0.25);">{{ tag }}</span>
+                </sc-for>
+              </div>
+              <sc-if value="{{ p.link }}" hint-placeholder-val="{{ true }}">
+                <a href="{{ p.link }}" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 10px; margin-top: 22px; padding: 12px 24px; border-radius: 999px; font-size: 13px; letter-spacing: .08em; color: #16100a; background: linear-gradient(120deg, #ffcf7d, #ff9a35); box-shadow: 0 0 26px rgba(255,154,53,0.28);" style-hover="color: #16100a; box-shadow: 0 0 46px rgba(255,154,53,0.5);">{{ t.visit }}</a>
+              </sc-if>
+            </div>
+          </article>
+        </sc-for>
+      </div>
+    </section>
+
+    <section id="contact" data-reveal="1" style="max-width: 900px; margin: 0 auto; padding: 100px clamp(20px, 6vw, 60px) 140px; text-align: center; opacity: 0; transform: translateY(70px) scale(0.97); transition: opacity 1.1s ease, transform 1.1s cubic-bezier(.2,.7,.2,1);">
+      <p style="margin: 0 0 14px; font-size: 12px; letter-spacing: .34em; text-transform: uppercase; color: rgba(255,190,107,0.75);">05</p>
+      <h2 style="margin: 0 0 20px; font-family: {{ displayFont }}; font-weight: 400; font-size: clamp(34px, 5vw, 62px); color: #fff;">{{ t.contactTitle }}</h2>
+      <p style="margin: 0 auto 46px; max-width: 520px; font-size: 16px; line-height: 2; color: rgba(239,233,246,0.7);">{{ t.contactLead }}</p>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; text-align: start;">
+        <sc-for list="{{ t.contacts }}" as="c" hint-placeholder-count="3">
+          <a href="{{ c.href }}" style="display: block; padding: 22px 24px; border-radius: 16px; border: 1px solid rgba(140,110,255,0.24); background: rgba(14,10,32,0.6); color: #efe9f6;" style-hover="border-color: rgba(255,190,107,0.55); color: #fff; background: rgba(28,20,58,0.7);">
+            <div style="font-size: 11px; letter-spacing: .2em; color: rgba(255,190,107,0.8); margin-bottom: 9px;">{{ c.label }}</div>
+            <div style="font-size: 15px; direction: ltr; text-align: start;">{{ c.value }}</div>
+          </a>
+        </sc-for>
+      </div>
+      <p style="margin: 70px 0 0; font-size: 12px; letter-spacing: .18em; color: rgba(239,233,246,0.35);">{{ t.footer }}</p>
+    </section>
+  </main>
+
+  <sc-if value="{{ loading }}" hint-placeholder-val="{{ true }}">
+    <div style="position: fixed; inset: 0; z-index: 90; background: #04040a; display: grid; place-items: center; opacity: {{ loaderOpacity }}; transform: scale({{ loaderScale }}); transition: opacity 1.3s ease, transform 1.6s cubic-bezier(.3,.7,.1,1);">
+      <canvas ref="{{ loadRef }}" style="position: absolute; inset: 0; width: 100%; height: 100%;"></canvas>
+      <div style="position: relative; text-align: center; pointer-events: none;">
+        <div style="font-family: {{ displayFont }}; font-size: clamp(54px, 11vw, 128px); line-height: 1; color: #fff; text-shadow: 0 0 50px rgba(255,176,74,0.4);">{{ progress }}</div>
+        <div style="margin-top: 18px; font-size: 11px; letter-spacing: .4em; color: rgba(255,190,107,0.8);">{{ t.loadingLabel }}</div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const CONTENT = {
+  ar: {
+    brand: "محمد سعادات",
+    langToggle: "EN",
+    nav: [
+      { label: "نبذة", href: "#about" },
+      { label: "المهارات", href: "#skills" },
+      { label: "الخبرة", href: "#experience" },
+      { label: "مشاريع", href: "#projects" },
+      { label: "تواصل", href: "#contact" }
+    ],
+    heroKicker: "مطوّر ويب متكامل",
+    heroName: "محمد جميل سعادات",
+    heroTagline: "أبني تجارب ويب عربية سريعة، متاحة للجميع، ومصمّمة من الأساس لاتجاه الكتابة من اليمين إلى اليسار.",
+    heroStack: ["React", "Next.js", "Laravel"],
+    ctaWork: "شاهد المشاريع",
+    ctaContact: "تواصل معي",
+    scroll: "انزل للأعمق",
+    loadingLabel: "جاري تشكيل الأفق",
+    photoHint: "ضع صورتك هنا · profile.png",
+    aboutTitle: "نبذة",
+    aboutBody: [
+      "دبلوم هندسة برمجيات من جامعة دمشق (٢٠٢٣–٢٠٢٥).",
+      "أعمل حالياً كمتدرّب مطوّر واجهات أمامية في Connect Digital Agency.",
+      "يشغلني التقاطع بين الأداء وإتاحة الوصول والدعم الصحيح لاتجاه RTL: واجهات تُقاس بالمللي ثانية، وتعمل لكل مستخدم، وتقرأ بالعربية كما لو أنها كُتبت لها أولاً."
+    ],
+    aboutFacts: [
+      { label: "التعليم", value: "هندسة برمجيات — جامعة دمشق" },
+      { label: "الحالياً", value: "متدرّب واجهات أمامية — Connect Digital Agency" }
+    ],
+    skillsTitle: "المهارات",
+    skills: [
+      { title: "الواجهة الأمامية", items: ["React", "Next.js", "TypeScript", "Tailwind CSS", "Sass", "Zustand", "React Query", "Framer Motion", "Three.js"] },
+      { title: "الواجهة الخلفية", items: ["Laravel / PHP", "FastAPI (Python)"] },
+      { title: "الاختبارات", items: ["Jest", "React Testing Library", "Playwright"] },
+      { title: "الأداء", items: ["Core Web Vitals", "إتاحة الوصول (a11y)", "تصميم RTL أولاً"] }
+    ],
+    expTitle: "الخبرة",
+    experience: [
+      { role: "متدرّب مطوّر واجهات أمامية", org: "Connect Digital Agency", period: "أيار ٢٠٢٦ — حتى الآن" },
+      { role: "متدرّب اختبار وضمان جودة", org: "Snam — السعودية", period: "آذار — نيسان ٢٠٢٦" },
+      { role: "مطوّر مبتدئ", org: "MSA DataX — برلين، عن بعد", period: "كانون الأول ٢٠٢٥ — آذار ٢٠٢٦" },
+      { role: "مطوّر واجهات أمامية", org: "Tkram Ride", period: "أيلول ٢٠٢٥ — آب ٢٠٢٦" }
+    ],
+    projTitle: "مشاريع",
+    visit: "زيارة الموقع",
+    photoAlt: "محمد جميل سعادات",
+    projects: [
+      { status: "واجهة أمامية · صفحة هبوط", name: "Raumstudio BenTo'o", img: "raumstudio-card.jpg", link: "https://raumstudio-bentoo-website.vercel.app/", desc: "صفحة هبوط احترافية لشركة أرضيات وباركيه في برلين — تصميم أنيق ودافئ يركّز على الحرفية والثقة.", tags: ["React", "Next.js", "Responsive"] },
+      { status: "واجهة أمامية · مطعم فاخر", name: "SK Restaurant", img: "skrestaurant-card.jpg", link: "https://skresturant.vercel.app/", desc: "موقع مطعم فاخر في برلين مع نظام حجوزات وقائمة طعام وتبديل لغة — أجواء داكنة وذهبية أنيقة.", tags: ["React", "Next.js", "i18n"] },
+      { status: "قيد التطوير", name: "Studio", desc: "منصّة SaaS لبناء المواقع بالعربية، RTL أولاً، بأسلوب Wix / Webflow وموجّهة للأعمال الصغيرة الناطقة بالعربية.", tags: ["Next.js", "TypeScript", "RTL"] },
+      { status: "مكتمل", name: "Laqta Store", desc: "منصّة تجارة إلكترونية متكاملة بـ Laravel و Next.js مع توصيل الطلبات وتتبّعها.", tags: ["Laravel", "Next.js", "تتبّع الطلبات"] },
+      { status: "عمل حر", name: "متجر ملابس أطفال", desc: "متجر إلكتروني بُني من الصفر لعميل مستقل.", tags: ["تجارة إلكترونية", "من الصفر"] }
+    ],
+    contactTitle: "تواصل",
+    contactLead: "مفتوح للفرص والتعاون. أسرع طريقة للوصول إليّ هي البريد الإلكتروني.",
+    contacts: [
+      { label: "البريد الإلكتروني", value: "androo2050@gmail.com", href: "mailto:androo2050@gmail.com" },
+      { label: "الهاتف", value: "0958389235", href: "tel:0958389235" },
+      { label: "LinkedIn", value: "in/mohamad-saadat-7b293333a", href: "https://linkedin.com/in/mohamad-saadat-7b293333a" }
+    ],
+    footer: "محمد جميل سعادات — ٢٠٢٦"
+  },
+  en: {
+    brand: "Mohammed Saadat",
+    langToggle: "عربي",
+    nav: [
+      { label: "About", href: "#about" },
+      { label: "Skills", href: "#skills" },
+      { label: "Experience", href: "#experience" },
+      { label: "Projects", href: "#projects" },
+      { label: "Contact", href: "#contact" }
+    ],
+    heroKicker: "Full-Stack Developer",
+    heroName: "Mohammed Jamil Saadat",
+    heroTagline: "I build fast, accessible, RTL-first Arabic web experiences — designed for right-to-left from the first line, not retrofitted.",
+    heroStack: ["React", "Next.js", "Laravel"],
+    ctaWork: "View projects",
+    ctaContact: "Get in touch",
+    scroll: "SCROLL DEEPER",
+    loadingLabel: "FORMING THE HORIZON",
+    photoHint: "Drop your photo here · profile.png",
+    aboutTitle: "About",
+    aboutBody: [
+      "Software Engineering Diploma, Damascus University (2023–2025).",
+      "Currently a Front-End Developer trainee at Connect Digital Agency.",
+      "I'm drawn to the intersection of performance, accessibility, and correct RTL support: interfaces measured in milliseconds, usable by everyone, and reading in Arabic as if written for it first."
+    ],
+    aboutFacts: [
+      { label: "EDUCATION", value: "Software Engineering — Damascus University" },
+      { label: "CURRENTLY", value: "Front-End trainee — Connect Digital Agency" }
+    ],
+    skillsTitle: "Skills",
+    skills: [
+      { title: "Frontend", items: ["React", "Next.js", "TypeScript", "Tailwind CSS", "Sass", "Zustand", "React Query", "Framer Motion", "Three.js"] },
+      { title: "Backend", items: ["Laravel / PHP", "FastAPI (Python)"] },
+      { title: "Testing", items: ["Jest", "React Testing Library", "Playwright"] },
+      { title: "Performance", items: ["Core Web Vitals", "Accessibility (a11y)", "RTL-first design"] }
+    ],
+    expTitle: "Experience",
+    experience: [
+      { role: "Front-End Developer Trainee", org: "Connect Digital Agency", period: "May 2026 — present" },
+      { role: "QA / Testing Trainee", org: "Snam, Saudi Arabia", period: "Mar — Apr 2026" },
+      { role: "Junior Developer", org: "MSA DataX — Berlin, remote", period: "Dec 2025 — Mar 2026" },
+      { role: "Front-End Developer", org: "Tkram Ride", period: "Sep 2025 — Aug 2026" }
+    ],
+    projTitle: "Projects",
+    visit: "Visit site",
+    photoAlt: "Mohammed Jamil Saadat",
+    projects: [
+      { status: "FRONT-END · LANDING PAGE", name: "Raumstudio BenTo'o", img: "raumstudio-card.jpg", link: "https://raumstudio-bentoo-website.vercel.app/", desc: "A polished landing page for a Berlin flooring & parquet craftsman studio — warm, elegant design focused on craftsmanship and trust.", tags: ["React", "Next.js", "Responsive"] },
+      { status: "FRONT-END · FINE DINING", name: "SK Restaurant", img: "skrestaurant-card.jpg", link: "https://skresturant.vercel.app/", desc: "A fine-dining restaurant website in Berlin with reservations, a menu, and language switching — an elegant dark-and-gold atmosphere.", tags: ["React", "Next.js", "i18n"] },
+      { status: "IN PROGRESS", name: "Studio", desc: "An RTL-first Arabic website-builder SaaS in the spirit of Wix and Webflow, aimed at Arabic-speaking small businesses.", tags: ["Next.js", "TypeScript", "RTL"] },
+      { status: "SHIPPED", name: "Laqta Store", desc: "A full-stack Laravel + Next.js e-commerce platform with order delivery and tracking.", tags: ["Laravel", "Next.js", "Order tracking"] },
+      { status: "FREELANCE", name: "Children's clothing store", desc: "A freelance e-commerce build, from scratch.", tags: ["E-commerce", "From scratch"] }
+    ],
+    contactTitle: "Contact",
+    contactLead: "Open to opportunities and collaboration. Email is the fastest way to reach me.",
+    contacts: [
+      { label: "EMAIL", value: "androo2050@gmail.com", href: "mailto:androo2050@gmail.com" },
+      { label: "PHONE", value: "0958389235", href: "tel:0958389235" },
+      { label: "LINKEDIN", value: "in/mohamad-saadat-7b293333a", href: "https://linkedin.com/in/mohamad-saadat-7b293333a" }
+    ],
+    footer: "Mohammed Jamil Saadat — 2026"
+  }
+};
+
+class Component extends DCLogic {
+  state = { lang: "ar", loading: true, progress: 0, fading: false };
+  bgRef = React.createRef();
+  loadRef = React.createRef();
+  mouse = { x: 0, y: 0, tx: 0, ty: 0 };
+  scrollN = 0;
+
+  get reduced() {
+    return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  }
+
+  componentDidMount() {
+    this.startLoader();
+    this.waitForThree();
+    this.onScroll = () => {
+      const h = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      this.scrollN = Math.min(1, window.scrollY / h);
+    };
+    this.onMove = (e) => {
+      this.mouse.tx = (e.clientX / window.innerWidth) * 2 - 1;
+      this.mouse.ty = (e.clientY / window.innerHeight) * 2 - 1;
+    };
+    this.onResize = () => this.resize();
+    window.addEventListener("scroll", this.onScroll, { passive: true });
+    window.addEventListener("pointermove", this.onMove, { passive: true });
+    window.addEventListener("resize", this.onResize);
+    this.observeReveals();
+    this.syncImages();
+    this.imgTimer = setInterval(() => this.syncImages(), 400);
+    setTimeout(() => clearInterval(this.imgTimer), 8000);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("scroll", this.onScroll);
+    window.removeEventListener("pointermove", this.onMove);
+    window.removeEventListener("resize", this.onResize);
+    cancelAnimationFrame(this.raf);
+    cancelAnimationFrame(this.lraf);
+    clearInterval(this.lint);
+    clearTimeout(this.ltimer);
+    clearTimeout(this.threeTimer);
+    clearInterval(this.imgTimer);
+    if (this.ro) this.ro.disconnect();
+    if (this.io) this.io.disconnect();
+  }
+
+  syncImages() {
+    document.querySelectorAll("img[data-src]").forEach((el) => {
+      const s = el.getAttribute("data-src");
+      if (!s || s.indexOf("{{") !== -1) return;
+      if (el.getAttribute("src") !== s) el.setAttribute("src", s);
+    });
+  }
+
+  componentDidUpdate(prev) {
+    this.syncImages();
+    if (prev.state && prev.state.lang !== this.state.lang) this.observeReveals();
+  }
+
+  observeReveals() {
+    if (this.io) this.io.disconnect();
+    const show = (el) => {
+      el.style.opacity = "1";
+      el.style.transform = "translateY(0) scale(1)";
+    };
+    if (this.reduced) {
+      document.querySelectorAll("[data-reveal]").forEach(show);
+      return;
+    }
+    this.io = new IntersectionObserver((entries) => {
+      entries.forEach((en) => { if (en.isIntersecting) { show(en.target); this.io.unobserve(en.target); } });
+    }, { threshold: 0.12 });
+    setTimeout(() => document.querySelectorAll("[data-reveal]").forEach((el) => this.io.observe(el)), 60);
+  }
+
+  /* ---------- loading sequence: particles converge into a black hole ---------- */
+  startLoader() {
+    const dur = this.reduced ? 700 : 3400;
+    const t0 = performance.now();
+    const canvas = this.loadRef.current;
+    let parts = [];
+    const setup = () => {
+      if (!canvas) return;
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      const n = 900;
+      parts = new Array(n).fill(0).map(() => {
+        const a = Math.random() * Math.PI * 2;
+        const r = 0.55 + Math.random() * 0.9;
+        return { a, r, r0: r, sp: 0.4 + Math.random() * 1.2, sz: 0.4 + Math.random() * 1.6, gold: Math.random() < 0.42 };
+      });
+      return canvas.getContext("2d");
+    };
+    const ctx = setup();
+
+    const draw = (p) => {
+      if (!ctx || !canvas) return;
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      const w = canvas.width, h = canvas.height;
+      const cx = w / 2, cy = h / 2;
+      const R = Math.min(w, h);
+      ctx.clearRect(0, 0, w, h);
+      const e = p * p * (3 - 2 * p);
+      // accretion ring builds up
+      const ringR = R * 0.16;
+      const g = ctx.createRadialGradient(cx, cy, ringR * 0.55, cx, cy, ringR * 1.9);
+      g.addColorStop(0, "rgba(255,176,74," + (0.55 * e) + ")");
+      g.addColorStop(0.45, "rgba(160,107,255," + (0.3 * e) + ")");
+      g.addColorStop(1, "rgba(4,4,10,0)");
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(cx, cy, ringR * 1.9, 0, Math.PI * 2); ctx.fill();
+      ctx.globalCompositeOperation = "lighter";
+      parts.forEach((q) => {
+        const rr = (q.r0 * (1 - e) + 0.17 * e) * R;
+        const ang = q.a + e * q.sp * 5;
+        const x = cx + Math.cos(ang) * rr;
+        const y = cy + Math.sin(ang) * rr * (1 - 0.55 * e);
+        ctx.fillStyle = q.gold ? "rgba(255,196,110," + (0.35 + 0.55 * e) + ")" : "rgba(186,158,255," + (0.3 + 0.4 * e) + ")";
+        ctx.beginPath(); ctx.arc(x, y, q.sz * dpr * (0.7 + e), 0, Math.PI * 2); ctx.fill();
+      });
+      ctx.globalCompositeOperation = "source-over";
+      // event horizon
+      ctx.fillStyle = "#04040a";
+      ctx.beginPath(); ctx.arc(cx, cy, ringR * 0.62 * e, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = "rgba(255,214,150," + (0.8 * e) + ")";
+      ctx.lineWidth = 1.5 * dpr;
+      ctx.beginPath(); ctx.arc(cx, cy, ringR * 0.66 * e, 0, Math.PI * 2); ctx.stroke();
+    };
+
+    const tick = () => {
+      const p = Math.min(1, (performance.now() - t0) / dur);
+      draw(p);
+      const pct = Math.round(p * 100);
+      if (pct !== this.state.progress) this.setState({ progress: pct });
+      if (p < 1) { this.lraf = requestAnimationFrame(tick); }
+    };
+    this.lraf = requestAnimationFrame(tick);
+
+    // time-based drivers: progress and dismissal never depend on rAF firing
+    this.lint = setInterval(() => {
+      const p = Math.min(1, (performance.now() - t0) / dur);
+      const pct = Math.round(p * 100);
+      if (pct !== this.state.progress) this.setState({ progress: pct });
+      if (p >= 1) clearInterval(this.lint);
+    }, 60);
+    this.ltimer = setTimeout(() => {
+      if (!this.state.loading) return;
+      this.setState({ progress: 100, fading: true });
+      setTimeout(() => this.setState({ loading: false }), 1400);
+    }, dur + 120);
+  }
+
+  /* ---------- the cosmic scene ---------- */
+  sprite() {
+    const c = document.createElement("canvas");
+    c.width = c.height = 64;
+    const x = c.getContext("2d");
+    const g = x.createRadialGradient(32, 32, 0, 32, 32, 32);
+    g.addColorStop(0, "rgba(255,255,255,1)");
+    g.addColorStop(0.3, "rgba(255,255,255,0.7)");
+    g.addColorStop(1, "rgba(255,255,255,0)");
+    x.fillStyle = g; x.fillRect(0, 0, 64, 64);
+    return new THREE.CanvasTexture(c);
+  }
+
+  diskTexture() {
+    const c = document.createElement("canvas");
+    c.width = 512; c.height = 512;
+    const x = c.getContext("2d");
+    const g = x.createRadialGradient(256, 256, 70, 256, 256, 256);
+    g.addColorStop(0.00, "rgba(255,255,255,0)");
+    g.addColorStop(0.30, "rgba(255,238,205,0.95)");
+    g.addColorStop(0.44, "rgba(255,168,66,0.85)");
+    g.addColorStop(0.66, "rgba(178,96,255,0.45)");
+    g.addColorStop(1.00, "rgba(80,40,160,0)");
+    x.fillStyle = g; x.fillRect(0, 0, 512, 512);
+    // filament streaks
+    x.globalCompositeOperation = "lighter";
+    for (let i = 0; i < 220; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const r = 90 + Math.random() * 150;
+      x.strokeStyle = "rgba(255," + (170 + Math.random() * 80 | 0) + ",120," + (0.05 + Math.random() * 0.1) + ")";
+      x.lineWidth = 1 + Math.random() * 2;
+      x.beginPath();
+      x.arc(256, 256, r, a, a + 0.25 + Math.random() * 0.5);
+      x.stroke();
+    }
+    return new THREE.CanvasTexture(c);
+  }
+
+  waitForThree(tries) {
+    const n = tries || 0;
+    if (typeof THREE !== "undefined") { this.initScene(); return; }
+    if (n < 150) this.threeTimer = setTimeout(() => this.waitForThree(n + 1), 100);
+  }
+
+  initScene() {
+    const canvas = this.bgRef.current;
+    if (!canvas || typeof THREE === "undefined") return;
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: "high-performance" });
+    renderer.setPixelRatio(Math.min(1.75, window.devicePixelRatio || 1));
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 300);
+    camera.position.set(0, 0.6, 9);
+    this.renderer = renderer; this.scene = scene; this.camera = camera;
+
+    const universe = new THREE.Group();
+    scene.add(universe);
+    this.universe = universe;
+
+    // event horizon
+    const hole = new THREE.Mesh(new THREE.SphereGeometry(1.15, 48, 48), new THREE.MeshBasicMaterial({ color: 0x000000 }));
+    universe.add(hole);
+    // lensing halo
+    const halo = new THREE.Mesh(new THREE.SphereGeometry(1.32, 48, 48), new THREE.MeshBasicMaterial({ color: 0xffcf8a, transparent: true, opacity: 0.16, blending: THREE.AdditiveBlending, side: THREE.BackSide }));
+    universe.add(halo);
+    // photon ring
+    const photon = new THREE.Mesh(new THREE.TorusGeometry(1.24, 0.014, 8, 200), new THREE.MeshBasicMaterial({ color: 0xffe0b0, transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending }));
+    photon.rotation.x = Math.PI / 2 - 0.28;
+    universe.add(photon);
+
+    // accretion disks
+    const tex = this.diskTexture();
+    const disks = [];
+    [[1.5, 4.4, 0.85, -1.28], [1.9, 6.2, 0.34, -1.42], [1.6, 3.4, 0.5, -0.62]].forEach(([ri, ro, op, rx]) => {
+      const m = new THREE.Mesh(
+        new THREE.RingGeometry(ri, ro, 180, 1),
+        new THREE.MeshBasicMaterial({ map: tex, transparent: true, opacity: op, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, depthWrite: false })
+      );
+      m.rotation.x = rx;
+      universe.add(m);
+      disks.push(m);
+    });
+    this.disks = disks;
+
+    // starfield
+    const sprite = this.sprite();
+    const mkPoints = (n, spread, size, color, opacity) => {
+      const pos = new Float32Array(n * 3);
+      for (let i = 0; i < n; i++) {
+        pos[i * 3] = (Math.random() - 0.5) * spread;
+        pos[i * 3 + 1] = (Math.random() - 0.5) * spread * 0.7;
+        pos[i * 3 + 2] = (Math.random() - 0.5) * spread;
+      }
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+      const pts = new THREE.Points(geo, new THREE.PointsMaterial({ size, map: sprite, color, transparent: true, opacity, blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true }));
+      scene.add(pts);
+      return pts;
+    };
+    this.stars = mkPoints(3600, 150, 0.42, 0xbfd0ff, 0.85);
+    this.violet = mkPoints(1400, 80, 0.7, 0xa06bff, 0.5);
+    this.dust = mkPoints(900, 34, 0.32, 0xffb04a, 0.5);
+
+    // orbiting geometry
+    const shapes = [];
+    const geos = [
+      new THREE.IcosahedronGeometry(0.42, 0),
+      new THREE.OctahedronGeometry(0.5, 0),
+      new THREE.TorusGeometry(0.36, 0.09, 8, 24),
+      new THREE.TetrahedronGeometry(0.5, 0),
+      new THREE.BoxGeometry(0.5, 0.5, 0.5),
+      new THREE.IcosahedronGeometry(0.62, 0)
+    ];
+    for (let i = 0; i < 9; i++) {
+      const g = geos[i % geos.length];
+      const mat = new THREE.MeshBasicMaterial({ color: i % 3 === 0 ? 0xffb04a : 0x9a7bff, wireframe: true, transparent: true, opacity: 0.55 });
+      const m = new THREE.Mesh(g, mat);
+      m.userData = { rad: 5.4 + i * 0.8, ang: (i / 9) * Math.PI * 2, sp: 0.06 + (i % 4) * 0.03, tilt: (i % 5 - 2) * 0.3, y: (Math.random() - 0.5) * 3 };
+      universe.add(m);
+      shapes.push(m);
+    }
+    this.shapes = shapes;
+
+    this.resize();
+    const clock = new THREE.Clock();
+    const still = this.reduced;
+    if (window.ResizeObserver) {
+      this.ro = new ResizeObserver(() => this.resize());
+      this.ro.observe(canvas);
+    }
+    const loop = () => {
+      this.resize();
+      const t = clock.getElapsedTime();
+      const s = this.scrollN;
+      this.mouse.x += (this.mouse.tx - this.mouse.x) * 0.045;
+      this.mouse.y += (this.mouse.ty - this.mouse.y) * 0.045;
+
+      if (!still) {
+        this.disks[0].rotation.z = t * 0.16;
+        this.disks[1].rotation.z = -t * 0.09;
+        this.disks[2].rotation.z = t * 0.24;
+        photon.rotation.z = t * 0.3;
+        this.stars.rotation.y = t * 0.006;
+        this.violet.rotation.y = -t * 0.01;
+        this.dust.rotation.y = t * 0.02;
+        this.shapes.forEach((m) => {
+          const a = m.userData.ang + t * m.userData.sp;
+          m.position.set(Math.cos(a) * m.userData.rad, m.userData.y + Math.sin(a * 1.4) * 0.6, Math.sin(a) * m.userData.rad * Math.cos(m.userData.tilt));
+          m.rotation.x = t * 0.3; m.rotation.y = t * 0.24;
+        });
+      }
+
+      // flying deeper as you scroll
+      const depth = s * 26;
+      this.camera.position.z = 9 - depth * 0.42 + this.mouse.x * 0.3;
+      this.camera.position.x = this.mouse.x * 1.5 + Math.sin(s * Math.PI) * 1.2;
+      this.camera.position.y = 0.6 - this.mouse.y * 1.0 + s * 1.4;
+      this.universe.rotation.y = s * 0.9 + this.mouse.x * 0.14;
+      this.universe.rotation.x = -this.mouse.y * 0.1 + s * 0.12;
+      this.universe.scale.setScalar(1 - s * 0.35);
+      // keep the hole clear of the hero text band, settle it back as we descend
+      this.universe.position.y = 2.9 * Math.max(0, 1 - s * 4);
+      this.stars.position.z = depth * 0.5;
+      this.dust.position.z = depth * 0.7;
+      this.camera.lookAt(0, s * 1.2, -s * 4);
+
+      this.renderer.render(this.scene, this.camera);
+      this.raf = requestAnimationFrame(loop);
+    };
+    loop();
+  }
+
+  resize() {
+    if (!this.renderer) return;
+    const el = this.bgRef.current;
+    const w = (el && el.clientWidth) || window.innerWidth;
+    const h = (el && el.clientHeight) || window.innerHeight;
+    if (!w || !h) return;
+    const dpr = this.renderer.getPixelRatio();
+    if (Math.abs(el.width - Math.round(w * dpr)) < 2 && Math.abs(el.height - Math.round(h * dpr)) < 2) return;
+    this.renderer.setSize(w, h, false);
+    this.camera.aspect = w / h;
+    this.camera.updateProjectionMatrix();
+  }
+
+  renderVals() {
+    const lang = this.state.lang;
+    const ar = lang === "ar";
+    const R = (typeof window !== "undefined" && window.__resources) || {};
+    const ids = { "raumstudio-card.jpg": "raumstudio", "skrestaurant-card.jpg": "skrestaurant" };
+    const base = CONTENT[lang];
+    const t = Object.assign({}, base, {
+      projects: base.projects.map((p) => p.img ? Object.assign({}, p, { img: R[ids[p.img]] || p.img }) : p)
+    });
+    return {
+      t: t,
+      dir: ar ? "rtl" : "ltr",
+      displayFont: ar ? "'Aref Ruqaa', serif" : "'Cormorant Garamond', serif",
+      bodyFont: ar ? "'IBM Plex Sans Arabic', sans-serif" : "'Space Grotesk', sans-serif",
+      loading: this.state.loading,
+      progress: this.state.progress,
+      loaderOpacity: this.state.fading ? 0 : 1,
+      loaderScale: this.state.fading ? 1.7 : 1,
+      bgRef: this.bgRef,
+      loadRef: this.loadRef,
+      toggleLang: () => this.setState({ lang: this.state.lang === "ar" ? "en" : "ar" })
+    };
+  }
+}
+
+</script>
+</body>
+</html>
