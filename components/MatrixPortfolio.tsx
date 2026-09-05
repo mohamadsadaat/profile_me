@@ -92,7 +92,7 @@ function flyWordStyle(phases: WordPhase[], index: number, progress: number) {
   return {
     transform: `translate3d(${ph.x}vw, ${ph.y}vh, ${z}px) translate(-50%, -50%)`,
     opacity,
-    color: index % 4 === 0 ? "#4dd8ff" : "#39ff88",
+    color: index % 4 === 0 ? "#E67E22" : "#C8963E",
   };
 }
 
@@ -189,14 +189,14 @@ export default function MatrixPortfolio() {
       return () => window.removeEventListener("resize", setup);
     }
     const draw = () => {
-      ctx.fillStyle = "rgba(5,8,7,0.09)";
+      ctx.fillStyle = "rgba(4,13,24,0.09)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.font = "14px monospace";
       for (let i = 0; i < cols; i++) {
         const ch = chars[Math.floor(Math.random() * chars.length)];
         const x = i * 16;
         const y = drops[i] * 16;
-        ctx.fillStyle = Math.random() < 0.06 ? "rgba(77,216,255,0.85)" : "rgba(57,255,136,0.65)";
+        ctx.fillStyle = Math.random() < 0.06 ? "rgba(200,150,62,0.85)" : "rgba(57,255,20,0.65)";
         ctx.fillText(ch, x, y);
         drops[i] += 1;
         if (y > canvas.height && Math.random() > 0.975) drops[i] = 0;
@@ -249,7 +249,7 @@ export default function MatrixPortfolio() {
         if (c.alpha > 0.003) {
           const col = i % cols;
           const row = Math.floor(i / cols);
-          ctx.fillStyle = `rgba(57,255,136,${c.alpha})`;
+          ctx.fillStyle = `rgba(200,150,62,${c.alpha})`;
           ctx.fillRect(col * cell + 1, row * cell + 1, cell - 2, cell - 2);
         }
       }
@@ -313,7 +313,7 @@ export default function MatrixPortfolio() {
         position: "relative",
         minHeight: "100vh",
         fontFamily: bodyFont,
-        background: "#050807",
+        background: "#040D18",
       }}
     >
       <canvas
@@ -337,7 +337,7 @@ export default function MatrixPortfolio() {
           pointerEvents: "none",
           opacity: 0.18,
           backgroundImage:
-            "repeating-linear-gradient(0deg, rgba(57,255,136,0.5) 0px, rgba(57,255,136,0.5) 1px, transparent 1px, transparent 64px), repeating-linear-gradient(90deg, rgba(57,255,136,0.5) 0px, rgba(57,255,136,0.5) 1px, transparent 1px, transparent 64px)",
+            "repeating-linear-gradient(0deg, rgba(200,150,62,0.5) 0px, rgba(200,150,62,0.5) 1px, transparent 1px, transparent 64px), repeating-linear-gradient(90deg, rgba(200,150,62,0.5) 0px, rgba(200,150,62,0.5) 1px, transparent 1px, transparent 64px)",
         }}
       />
       <canvas
@@ -359,7 +359,7 @@ export default function MatrixPortfolio() {
           zIndex: 1,
           pointerEvents: "none",
           background:
-            "radial-gradient(circle at 50% 30%, rgba(5,8,7,0) 0%, rgba(5,8,7,0.5) 60%, #05080766 100%)",
+            "radial-gradient(circle at 50% 30%, rgba(4,13,24,0) 0%, rgba(4,13,24,0.5) 60%, #040D1866 100%)",
         }}
       />
 
@@ -385,14 +385,14 @@ export default function MatrixPortfolio() {
             gap: 24,
             width: "min(94vw, 980px)",
             padding: "10px 14px 10px 14px",
-            background: "#050807d9",
-            border: "1px solid rgba(57,255,136,0.18)",
+            background: "#040D18d9",
+            border: "1px solid rgba(200,150,62,0.18)",
             borderRadius: 999,
             boxShadow: "0 8px 32px rgba(0,0,0,0.35)",
             backdropFilter: "blur(10px)",
           }}
         >
-          <a href="#top" style={{ display: "flex", alignItems: "center", gap: 10, color: "#d9f5e6" }}>
+          <a href="#top" style={{ display: "flex", alignItems: "center", gap: 10, color: "#F8F9FA" }}>
             <span
               className="mx-logo-fly-wrap"
               style={{
@@ -411,13 +411,13 @@ export default function MatrixPortfolio() {
                   width: 38,
                   height: 38,
                   borderRadius: "50%",
-                  background: "rgba(57,255,136,0.12)",
-                  border: "1px solid rgba(57,255,136,0.4)",
-                  boxShadow: "0 0 16px rgba(57,255,136,0.35)",
+                  background: "rgba(200,150,62,0.12)",
+                  border: "1px solid rgba(200,150,62,0.4)",
+                  boxShadow: "0 0 16px rgba(200,150,62,0.35)",
                   fontFamily: MONO_FONT,
                   fontSize: 18,
                   fontWeight: 700,
-                  color: "#39ff88",
+                  color: "#C8963E",
                   flexShrink: 0,
                 }}
               >
@@ -462,21 +462,51 @@ export default function MatrixPortfolio() {
       <main id="top" style={{ position: "relative", zIndex: 10 }}>
         <section
           style={{
+            position: "relative",
             minHeight: "100vh",
             display: "grid",
             placeItems: "center",
             padding: "140px clamp(20px, 6vw, 80px) 100px",
             textAlign: "center",
+            overflow: "hidden",
           }}
         >
-          <div style={{ position: "relative" }}>
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            style={{
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              zIndex: 0,
+            }}
+          >
+            <source
+              src="/hailuo-2_3_Cinematic_moody_developer_workspace_atmosphere_loopable_background_video._A_dark-0.mp4"
+              type="video/mp4"
+            />
+          </video>
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              zIndex: 1,
+              pointerEvents: "none",
+              background: "rgba(4,13,24,0.32)",
+            }}
+          />
+          <div style={{ position: "relative", zIndex: 2 }}>
             <div
               style={{
                 position: "absolute",
                 inset: "-6% -14%",
                 pointerEvents: "none",
                 background:
-                  "radial-gradient(ellipse at 50% 40%, rgba(5,8,7,0.85) 0%, rgba(5,8,7,0.6) 55%, rgba(5,8,7,0) 100%)",
+                  "radial-gradient(ellipse at 50% 40%, rgba(4,13,24,0.5) 0%, rgba(4,13,24,0.3) 55%, rgba(4,13,24,0) 100%)",
               }}
             />
             <div
@@ -496,8 +526,8 @@ export default function MatrixPortfolio() {
                     position: "absolute",
                     inset: -8,
                     borderRadius: "50%",
-                    border: "1px solid rgba(57,255,136,0.45)",
-                    boxShadow: "0 0 30px rgba(57,255,136,0.25)",
+                    border: "1px solid rgba(200,150,62,0.45)",
+                    boxShadow: "0 0 30px rgba(200,150,62,0.25)",
                   }}
                 />
                 <div
@@ -505,7 +535,7 @@ export default function MatrixPortfolio() {
                     position: "absolute",
                     inset: -2,
                     borderRadius: "50%",
-                    border: "1px solid rgba(77,216,255,0.5)",
+                    border: "1px solid rgba(230,126,34,0.5)",
                   }}
                 />
                 <div
@@ -514,7 +544,7 @@ export default function MatrixPortfolio() {
                     inset: 6,
                     borderRadius: "50%",
                     overflow: "hidden",
-                    background: "#071009",
+                    background: "#06101c",
                     display: "grid",
                     placeItems: "center",
                   }}
@@ -534,7 +564,7 @@ export default function MatrixPortfolio() {
                       fontFamily: MONO_FONT,
                       fontSize: 10,
                       letterSpacing: ".12em",
-                      color: "rgba(217,245,230,0.35)",
+                      color: "rgba(248,249,250,0.35)",
                       textAlign: "center",
                       padding: "0 16px",
                       lineHeight: 1.7,
@@ -554,7 +584,7 @@ export default function MatrixPortfolio() {
                 fontSize: 13,
                 letterSpacing: ".3em",
                 textTransform: "uppercase",
-                color: "rgba(77,216,255,0.85)",
+                color: "rgba(230,126,34,0.85)",
                 animationDelay: "0.15s",
                 animationPlayState: loading ? "paused" : "running",
               }}
@@ -570,8 +600,8 @@ export default function MatrixPortfolio() {
                 fontWeight: 400,
                 fontSize: "clamp(40px, 7.5vw, 96px)",
                 lineHeight: 1.1,
-                color: "#eafcf1",
-                textShadow: "0 0 40px rgba(57,255,136,0.28)",
+                color: "#F8F9FA",
+                textShadow: "0 0 40px rgba(200,150,62,0.28)",
                 animationDelay: "0.3s",
                 animationPlayState: loading ? "paused" : "running",
               }}
@@ -586,7 +616,7 @@ export default function MatrixPortfolio() {
                 maxWidth: 600,
                 fontSize: "clamp(15px, 1.5vw, 18px)",
                 lineHeight: 1.85,
-                color: "rgba(217,245,230,0.7)",
+                color: "rgba(248,249,250,0.7)",
                 animationDelay: "0.45s",
                 animationPlayState: loading ? "paused" : "running",
               }}
@@ -615,9 +645,9 @@ export default function MatrixPortfolio() {
                     letterSpacing: ".05em",
                     padding: "8px 16px",
                     borderRadius: 4,
-                    color: "#39ff88",
-                    border: "1px solid rgba(57,255,136,0.3)",
-                    background: "rgba(11,20,15,0.6)",
+                    color: "#C8963E",
+                    border: "1px solid rgba(200,150,62,0.3)",
+                    background: "rgba(10,22,36,0.6)",
                   }}
                 >
                   {chip}
@@ -654,7 +684,7 @@ export default function MatrixPortfolio() {
               fontFamily: MONO_FONT,
               fontSize: 11,
               letterSpacing: ".25em",
-              color: "rgba(217,245,230,0.4)",
+              color: "rgba(248,249,250,0.4)",
               animation: "mx-pulse 3s ease-in-out infinite",
             }}
           >
@@ -674,7 +704,7 @@ export default function MatrixPortfolio() {
               fontFamily: MONO_FONT,
               fontSize: 12,
               letterSpacing: ".3em",
-              color: "rgba(77,216,255,0.8)",
+              color: "rgba(230,126,34,0.8)",
             }}
           >
             01 / {t.aboutTag}
@@ -685,7 +715,7 @@ export default function MatrixPortfolio() {
               fontFamily: displayFont,
               fontWeight: 400,
               fontSize: "clamp(32px, 4.6vw, 54px)",
-              color: "#eafcf1",
+              color: "#F8F9FA",
             }}
           >
             {t.aboutTitle}
@@ -719,9 +749,9 @@ export default function MatrixPortfolio() {
                   style={{
                     padding: "18px 20px",
                     borderRadius: 6,
-                    border: "1px solid rgba(57,255,136,0.2)",
-                    background: "rgba(9,16,12,0.6)",
-                    borderInlineStart: "2px solid rgba(57,255,136,0.55)",
+                    border: "1px solid rgba(200,150,62,0.2)",
+                    background: "rgba(8,18,30,0.6)",
+                    borderInlineStart: "2px solid rgba(200,150,62,0.55)",
                   }}
                 >
                   <div
@@ -729,7 +759,7 @@ export default function MatrixPortfolio() {
                       fontFamily: MONO_FONT,
                       fontSize: 11,
                       letterSpacing: ".18em",
-                      color: "rgba(57,255,136,0.85)",
+                      color: "rgba(200,150,62,0.85)",
                       marginBottom: 8,
                     }}
                   >
@@ -756,7 +786,7 @@ export default function MatrixPortfolio() {
                 fontFamily: MONO_FONT,
                 fontSize: 12,
                 letterSpacing: ".3em",
-                color: "rgba(77,216,255,0.8)",
+                color: "rgba(230,126,34,0.8)",
               }}
             >
               02 / {t.skillsTag}
@@ -767,7 +797,7 @@ export default function MatrixPortfolio() {
                 fontFamily: displayFont,
                 fontWeight: 400,
                 fontSize: "clamp(32px, 4.6vw, 54px)",
-                color: "#eafcf1",
+                color: "#F8F9FA",
               }}
             >
               {t.skillsTitle}
@@ -804,7 +834,7 @@ export default function MatrixPortfolio() {
                   position: "absolute",
                   inset: 0,
                   pointerEvents: "none",
-                  background: "radial-gradient(circle at 50% 50%, rgba(5,8,7,0) 30%, rgba(5,8,7,0.9) 92%)",
+                  background: "radial-gradient(circle at 50% 50%, rgba(4,13,24,0) 30%, rgba(4,13,24,0.9) 92%)",
                 }}
               />
             </div>
@@ -824,7 +854,7 @@ export default function MatrixPortfolio() {
             >
               {t.skillGroups.map((group) => (
                 <div key={group.title} className="mx-skill-card">
-                  <div style={{ fontFamily: MONO_FONT, fontSize: 16, color: "#4dd8ff", marginBottom: 16 }}>
+                  <div style={{ fontFamily: MONO_FONT, fontSize: 16, color: "#E67E22", marginBottom: 16 }}>
                     {group.title}
                   </div>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
@@ -836,8 +866,8 @@ export default function MatrixPortfolio() {
                           fontSize: 12,
                           padding: "6px 12px",
                           borderRadius: 4,
-                          background: "rgba(57,255,136,0.08)",
-                          border: "1px solid rgba(57,255,136,0.16)",
+                          background: "rgba(200,150,62,0.08)",
+                          border: "1px solid rgba(200,150,62,0.16)",
                         }}
                       >
                         {skill}
@@ -862,7 +892,7 @@ export default function MatrixPortfolio() {
               fontFamily: MONO_FONT,
               fontSize: 12,
               letterSpacing: ".3em",
-              color: "rgba(77,216,255,0.8)",
+              color: "rgba(230,126,34,0.8)",
             }}
           >
             03 / {t.expTag}
@@ -873,7 +903,7 @@ export default function MatrixPortfolio() {
               fontFamily: displayFont,
               fontWeight: 400,
               fontSize: "clamp(32px, 4.6vw, 54px)",
-              color: "#eafcf1",
+              color: "#F8F9FA",
             }}
           >
             {t.expTitle}
@@ -882,7 +912,7 @@ export default function MatrixPortfolio() {
             style={{
               display: "grid",
               gap: 4,
-              borderInlineStart: "1px solid rgba(57,255,136,0.28)",
+              borderInlineStart: "1px solid rgba(200,150,62,0.28)",
               paddingInlineStart: "clamp(22px, 4vw, 42px)",
             }}
           >
@@ -896,8 +926,8 @@ export default function MatrixPortfolio() {
                     width: 9,
                     height: 9,
                     borderRadius: "50%",
-                    background: "#39ff88",
-                    boxShadow: "0 0 14px rgba(57,255,136,0.9)",
+                    background: "#C8963E",
+                    boxShadow: "0 0 14px rgba(200,150,62,0.9)",
                   }}
                 />
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "8px 18px", alignItems: "baseline" }}>
@@ -906,7 +936,7 @@ export default function MatrixPortfolio() {
                       margin: 0,
                       fontSize: "clamp(18px, 1.9vw, 23px)",
                       fontWeight: 500,
-                      color: "#eafcf1",
+                      color: "#F8F9FA",
                       fontFamily: MONO_FONT,
                     }}
                   >
@@ -916,7 +946,7 @@ export default function MatrixPortfolio() {
                     style={{
                       fontSize: 13,
                       letterSpacing: ".05em",
-                      color: "rgba(77,216,255,0.85)",
+                      color: "rgba(230,126,34,0.85)",
                       fontFamily: MONO_FONT,
                     }}
                   >
@@ -943,7 +973,7 @@ export default function MatrixPortfolio() {
               fontFamily: MONO_FONT,
               fontSize: 12,
               letterSpacing: ".3em",
-              color: "rgba(77,216,255,0.8)",
+              color: "rgba(230,126,34,0.8)",
             }}
           >
             04 / {t.projTag}
@@ -954,7 +984,7 @@ export default function MatrixPortfolio() {
               fontFamily: displayFont,
               fontWeight: 400,
               fontSize: "clamp(32px, 4.6vw, 54px)",
-              color: "#eafcf1",
+              color: "#F8F9FA",
             }}
           >
             {t.projTitle}
@@ -968,7 +998,7 @@ export default function MatrixPortfolio() {
           >
             {t.projects.map((p) => (
               <article key={p.name} className="mx-project-card">
-                <div style={{ position: "relative", width: "100%", aspectRatio: "16/10", overflow: "hidden", background: "#071009" }}>
+                <div style={{ position: "relative", width: "100%", aspectRatio: "16/10", overflow: "hidden", background: "#06101c" }}>
                   {p.img ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
@@ -991,10 +1021,10 @@ export default function MatrixPortfolio() {
                         display: "grid",
                         placeItems: "center",
                         background:
-                          "repeating-linear-gradient(45deg, rgba(57,255,136,0.05) 0 10px, transparent 10px 20px)",
+                          "repeating-linear-gradient(45deg, rgba(200,150,62,0.05) 0 10px, transparent 10px 20px)",
                       }}
                     >
-                      <span style={{ fontFamily: MONO_FONT, fontSize: 13, letterSpacing: ".1em", color: "rgba(57,255,136,0.5)" }}>
+                      <span style={{ fontFamily: MONO_FONT, fontSize: 13, letterSpacing: ".1em", color: "rgba(200,150,62,0.5)" }}>
                         {p.buildLabel}
                       </span>
                     </div>
@@ -1003,7 +1033,7 @@ export default function MatrixPortfolio() {
                     style={{
                       position: "absolute",
                       inset: 0,
-                      background: "linear-gradient(to top, rgba(5,8,7,0.85), transparent 50%)",
+                      background: "linear-gradient(to top, rgba(4,13,24,0.85), transparent 50%)",
                     }}
                   />
                 </div>
@@ -1013,13 +1043,13 @@ export default function MatrixPortfolio() {
                       fontFamily: MONO_FONT,
                       fontSize: 11,
                       letterSpacing: ".18em",
-                      color: "rgba(57,255,136,0.85)",
+                      color: "rgba(200,150,62,0.85)",
                       marginBottom: 12,
                     }}
                   >
                     {p.status}
                   </div>
-                  <h3 style={{ margin: "0 0 12px", fontFamily: displayFont, fontWeight: 400, fontSize: 25, color: "#eafcf1" }}>
+                  <h3 style={{ margin: "0 0 12px", fontFamily: displayFont, fontWeight: 400, fontSize: 25, color: "#F8F9FA" }}>
                     {p.name}
                   </h3>
                   <p className="mx-glow-line" style={{ margin: "0 0 18px", fontSize: 14, lineHeight: 1.9 }}>
@@ -1034,7 +1064,7 @@ export default function MatrixPortfolio() {
                           fontSize: 11,
                           padding: "6px 11px",
                           borderRadius: 4,
-                          border: "1px solid rgba(77,216,255,0.25)",
+                          border: "1px solid rgba(230,126,34,0.25)",
                         }}
                       >
                         {tag}
@@ -1075,7 +1105,7 @@ export default function MatrixPortfolio() {
               fontFamily: MONO_FONT,
               fontSize: 12,
               letterSpacing: ".3em",
-              color: "rgba(77,216,255,0.8)",
+              color: "rgba(230,126,34,0.8)",
             }}
           >
             05 / {t.contactTag}
@@ -1086,7 +1116,7 @@ export default function MatrixPortfolio() {
               fontFamily: displayFont,
               fontWeight: 400,
               fontSize: "clamp(32px, 4.6vw, 54px)",
-              color: "#eafcf1",
+              color: "#F8F9FA",
             }}
           >
             {t.contactTitle}
@@ -1109,7 +1139,7 @@ export default function MatrixPortfolio() {
                     fontFamily: MONO_FONT,
                     fontSize: 11,
                     letterSpacing: ".16em",
-                    color: "rgba(57,255,136,0.85)",
+                    color: "rgba(200,150,62,0.85)",
                     marginBottom: 9,
                   }}
                 >
@@ -1124,7 +1154,7 @@ export default function MatrixPortfolio() {
               </a>
             ))}
           </div>
-          <p style={{ margin: "64px 0 0", fontFamily: MONO_FONT, fontSize: 12, letterSpacing: ".1em", color: "rgba(217,245,230,0.35)" }}>
+          <p style={{ margin: "64px 0 0", fontFamily: MONO_FONT, fontSize: 12, letterSpacing: ".1em", color: "rgba(248,249,250,0.35)" }}>
             {t.footer}
           </p>
         </section>
@@ -1136,7 +1166,7 @@ export default function MatrixPortfolio() {
             position: "fixed",
             inset: 0,
             zIndex: 90,
-            background: "#050807",
+            background: "#040D18",
             display: "grid",
             placeItems: "center",
             opacity: fading ? 0 : 1,
@@ -1145,21 +1175,21 @@ export default function MatrixPortfolio() {
         >
           <div style={{ width: "min(560px, 88vw)", fontFamily: MONO_FONT }}>
             {TERM_LINES.slice(0, termIdx).map((line, i) => (
-              <div key={i} style={{ fontSize: 13, lineHeight: 1.9, color: "rgba(57,255,136,0.85)", whiteSpace: "pre-wrap" }}>
+              <div key={i} style={{ fontSize: 13, lineHeight: 1.9, color: "rgba(200,150,62,0.85)", whiteSpace: "pre-wrap" }}>
                 {line}
               </div>
             ))}
-            <div style={{ marginTop: 18, height: 3, background: "rgba(57,255,136,0.12)", borderRadius: 2, overflow: "hidden" }}>
+            <div style={{ marginTop: 18, height: 3, background: "rgba(200,150,62,0.12)", borderRadius: 2, overflow: "hidden" }}>
               <div
                 style={{
                   height: "100%",
                   width: `${progress}%`,
-                  background: "linear-gradient(90deg, #39ff88, #4dd8ff)",
+                  background: "linear-gradient(90deg, #C8963E, #E67E22)",
                   transition: "width .1s linear",
                 }}
               />
             </div>
-            <div style={{ marginTop: 12, display: "flex", justifyContent: "space-between", fontSize: 12, color: "rgba(77,216,255,0.85)" }}>
+            <div style={{ marginTop: 12, display: "flex", justifyContent: "space-between", fontSize: 12, color: "rgba(230,126,34,0.85)" }}>
               <span>{t.loadingLabel}</span>
               <span>
                 {progress}%<span style={{ animation: "mx-blink 1s step-end infinite" }}>_</span>
