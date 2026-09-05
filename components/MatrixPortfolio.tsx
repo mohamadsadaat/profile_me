@@ -486,7 +486,7 @@ export default function MatrixPortfolio() {
             }}
           >
             <source
-              src="/hailuo-2_3_Cinematic_moody_developer_workspace_atmosphere_loopable_background_video._A_dark-0.mp4"
+              src="/Cinematic_abstract_visualizat.mp4"
               type="video/mp4"
             />
           </video>
@@ -815,7 +815,35 @@ export default function MatrixPortfolio() {
                 perspectiveOrigin: "50% 50%",
               }}
             >
-              <div style={{ position: "absolute", inset: 0 }}>
+              <video
+                autoPlay
+                loop
+                muted
+                playsInline
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  zIndex: 0,
+                }}
+              >
+                <source
+                  src="/hailuo-2_3_Cinematic_moody_developer_workspace_atmosphere_loopable_background_video._A_dark-0.mp4"
+                  type="video/mp4"
+                />
+              </video>
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  zIndex: 0,
+                  pointerEvents: "none",
+                  background: "rgba(4,13,24,0.55)",
+                }}
+              />
+              <div style={{ position: "absolute", inset: 0, zIndex: 1 }}>
                 {FLY_WORDS.map((word, i) => (
                   <div
                     key={word}
