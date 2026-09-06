@@ -1,88 +1,10 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { CONTENT, JourneyMilestone, Lang, TERM_LINES } from "@/content/translations";
 
-const MONO_FONT = "'JetBrains Mono', monospace";
-const SCRAMBLE_CHARS = "!<>-_/[]{}=+*^?#$%01アイウ";
-
-function scrambleChar() {
-  return SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
-}
-
-/** Animates `text` into view via a scramble/decode effect whenever `triggerToken` increases past 0. */
-function useScrambleText(text: string, triggerToken: number, reduced: boolean, frames = 34, frameMs = 70) {
-  const [display, setDisplay] = useState(text);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  useEffect(() => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    if (triggerToken === 0 || reduced) {
-      setDisplay(text);
-      return;
-    }
-    const totalFrames = frames;
-    const lockFrames = text.split("").map((ch) => (ch === " " ? -1 : Math.floor(Math.random() * totalFrames)));
-    let frame = 0;
-    intervalRef.current = setInterval(() => {
-      frame++;
-      const next = text
-        .split("")
-        .map((ch, i) => (ch === " " || frame >= lockFrames[i] ? ch : scrambleChar()))
-        .join("");
-      setDisplay(next);
-      if (frame >= totalFrames) {
-        setDisplay(text);
-        if (intervalRef.current) clearInterval(intervalRef.current);
-      }
-    }, frameMs);
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [text, triggerToken, reduced, frames, frameMs]);
-
-  return display;
-}
-
-/** Replays the scramble-decode effect on `text` every time this element enters the viewport. */
-function ScrambleOnView({
-  text,
-  reduced,
-  as: Tag = "span",
-  ...rest
-}: {
-  text: string;
-  reduced: boolean;
-  as?: keyof JSX.IntrinsicElements;
-} & React.HTMLAttributes<HTMLElement>) {
-  const ref = useRef<HTMLElement | null>(null);
-  const [playToken, setPlayToken] = useState(0);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) setPlayToken((c) => c + 1);
-        });
-      },
-      { threshold: 0.4 }
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
-
-  const display = useScrambleText(text, playToken, reduced);
-
-  return (
-    // @ts-expect-error -- generic element ref via dynamic tag
-    <Tag ref={ref} {...rest}>
-      {display}
-    </Tag>
-  );
-}
+const MONO_FONT = "var(--font-mono), 'JetBrains Mono', monospace";
 
 function useReducedMotion() {
   const [reduced, setReduced] = useState(false);
@@ -185,36 +107,13 @@ const JOURNEY_TYPE_LABEL: Record<JourneyMilestone["type"], { ar: string; en: str
   project: { ar: "مشروع", en: "Project" },
 };
 
-/** The year heading of a timeline group: scales in and decodes itself every time it's scrolled into view. */
+/** The year heading of a timeline group: scales and glows into view every time it's scrolled to. */
 function JourneyYear({ year, reduced }: { year: string; reduced: boolean }) {
-  const ref = useRef<HTMLDivElement | null>(null);
-  const [playToken, setPlayToken] = useState(0);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    if (reduced) {
-      el.classList.add("is-visible");
-      return;
-    }
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          entry.target.classList.toggle("is-visible", entry.isIntersecting);
-          if (entry.isIntersecting) setPlayToken((c) => c + 1);
-        });
-      },
-      { threshold: 0.6 }
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [reduced]);
-
-  const display = useScrambleText(year, playToken, reduced, 12, 45);
+  const ref = useRepeatReveal(reduced);
 
   return (
-    <div ref={ref} className="mx-journey-year">
-      {display}
+    <div ref={ref as React.RefObject<HTMLDivElement>} className="mx-journey-year">
+      {year}
     </div>
   );
 }
@@ -263,11 +162,12 @@ function JourneyCard({ milestone, ar, reduced }: { milestone: JourneyMilestone; 
             background: "#06101c",
           }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src={milestone.img}
             alt={milestone.title}
-            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+            fill
+            sizes="(max-width: 900px) 90vw, 420px"
+            style={{ objectFit: "cover" }}
           />
         </div>
       ) : null}
@@ -310,8 +210,10 @@ export default function MatrixPortfolio() {
   const t = CONTENT[lang];
   const ar = lang === "ar";
   const dir = ar ? "rtl" : "ltr";
-  const displayFont = ar ? "'Rakkas', serif" : MONO_FONT;
-  const bodyFont = ar ? "'IBM Plex Sans Arabic', sans-serif" : "'IBM Plex Sans', sans-serif";
+  const displayFont = ar ? "var(--font-display), 'Rakkas', serif" : MONO_FONT;
+  const bodyFont = ar
+    ? "var(--font-sans-ar), 'IBM Plex Sans Arabic', sans-serif"
+    : "var(--font-sans-en), 'IBM Plex Sans', sans-serif";
 
   const journeyGroups = t.journey.reduce<{ year: string; items: JourneyMilestone[] }[]>((acc, m) => {
     const last = acc[acc.length - 1];
@@ -333,7 +235,6 @@ export default function MatrixPortfolio() {
   const activeYearRef = useRef("");
   const journeyYearsRef = useRef<string[]>([]);
   journeyYearsRef.current = journeyGroups.map((g) => g.year);
-  const activeYearDisplay = useScrambleText(activeYear, activeYear ? 1 : 0, reduced, 14, 45);
 
   useEffect(() => {
     const first = t.journey[0]?.year ?? "";
@@ -400,9 +301,15 @@ export default function MatrixPortfolio() {
         if (y > canvas.height && Math.random() > 0.975) drops[i] = 0;
       }
     };
-    const rainInterval = setInterval(draw, 90);
+    let rainInterval = setInterval(draw, 90);
+    const onVisibility = () => {
+      clearInterval(rainInterval);
+      if (!document.hidden) rainInterval = setInterval(draw, 90);
+    };
+    document.addEventListener("visibilitychange", onVisibility);
     return () => {
       window.removeEventListener("resize", setup);
+      document.removeEventListener("visibilitychange", onVisibility);
       clearInterval(rainInterval);
     };
   }, [reduced]);
@@ -427,43 +334,72 @@ export default function MatrixPortfolio() {
     return () => window.removeEventListener("pointermove", onMove);
   }, [reduced]);
 
-  /* ---------- journey timeline progress: fill line + moving dot, rAF-coalesced to one update per frame ---------- */
+  /* ---------- journey timeline progress: the dot eases toward the scroll position instead of snapping to it ---------- */
   useEffect(() => {
-    let scheduled = false;
-    const onScroll = () => {
-      if (scheduled) return;
-      scheduled = true;
-      requestAnimationFrame(() => {
-        scheduled = false;
-        const el = journeyTrackRef.current;
-        if (!el) return;
-        const rect = el.getBoundingClientRect();
-        const viewportAnchor = window.innerHeight * 0.35;
-        let p = rect.height > 0 ? (viewportAnchor - rect.top) / rect.height : 0;
-        p = Math.max(0, Math.min(1, p));
-        if (journeyFillRef.current) journeyFillRef.current.style.height = `${p * 100}%`;
-        if (journeyDotRef.current) journeyDotRef.current.style.top = `${p * 100}%`;
+    let raf = 0;
+    let running = false;
+    let target = 0;
+    let current = 0;
+    let trackHeight = 0;
 
-        const years = journeyYearsRef.current;
-        let active = years[0] ?? "";
-        journeyGroupRefs.current.forEach((group, i) => {
-          if (group && group.getBoundingClientRect().top <= viewportAnchor) active = years[i] ?? active;
-        });
-        if (active && active !== activeYearRef.current) {
-          activeYearRef.current = active;
-          setActiveYear(active);
-        }
-      });
+    const paint = () => {
+      if (journeyFillRef.current) journeyFillRef.current.style.transform = `scaleY(${current})`;
+      if (journeyDotRef.current) journeyDotRef.current.style.transform = `translateY(${current * trackHeight}px)`;
     };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+
+    const tick = () => {
+      current += (target - current) * 0.12;
+      if (Math.abs(target - current) < 0.0005) current = target;
+      paint();
+      if (current !== target) raf = requestAnimationFrame(tick);
+      else running = false;
+    };
+
+    const measure = () => {
+      const el = journeyTrackRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      trackHeight = rect.height;
+      const viewportAnchor = window.innerHeight * 0.35;
+      const p = trackHeight > 0 ? (viewportAnchor - rect.top) / trackHeight : 0;
+      target = Math.max(0, Math.min(1, p));
+
+      const years = journeyYearsRef.current;
+      let active = years[0] ?? "";
+      journeyGroupRefs.current.forEach((group, i) => {
+        if (group && group.getBoundingClientRect().top <= viewportAnchor) active = years[i] ?? active;
+      });
+      if (active && active !== activeYearRef.current) {
+        activeYearRef.current = active;
+        setActiveYear(active);
+      }
+
+      if (!running) {
+        running = true;
+        raf = requestAnimationFrame(tick);
+      }
+    };
+
+    current = 0;
+    measure();
+    window.addEventListener("scroll", measure, { passive: true });
+    window.addEventListener("resize", measure);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", measure);
+      window.removeEventListener("resize", measure);
+    };
   }, []);
 
   const projectsRef = useReveal(reduced);
   const contactRef = useReveal(reduced);
 
   const toggleLang = () => setLang((l) => (l === "ar" ? "en" : "ar"));
+
+  useEffect(() => {
+    document.documentElement.lang = lang;
+    document.documentElement.dir = dir;
+  }, [lang, dir]);
 
   return (
     <div
@@ -571,10 +507,9 @@ export default function MatrixPortfolio() {
               </span>
             </span>
             <span
-              className="mx-nav-item"
+              className="mx-nav-item mx-nav-brand"
               style={{
                 fontFamily: MONO_FONT,
-                fontSize: 16,
                 letterSpacing: ".04em",
                 animationDelay: "1.6s",
                 animationPlayState: loading ? "paused" : "running",
@@ -623,6 +558,9 @@ export default function MatrixPortfolio() {
             loop
             muted
             playsInline
+            preload="metadata"
+            poster="/hero-poster.jpg"
+            aria-hidden="true"
             style={{
               position: "absolute",
               inset: 0,
@@ -635,7 +573,7 @@ export default function MatrixPortfolio() {
             }}
           >
             <source
-              src="/Cinematic_abstract_visualizat.mp4"
+              src="/hero-bg.mp4"
               type="video/mp4"
             />
           </video>
@@ -699,14 +637,13 @@ export default function MatrixPortfolio() {
                     placeItems: "center",
                   }}
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
+                  <Image
                     src={t.photo}
                     alt={t.heroName}
-                    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                    onError={(e) => {
-                      (e.currentTarget as HTMLImageElement).style.display = "none";
-                    }}
+                    fill
+                    sizes="128px"
+                    priority
+                    style={{ objectFit: "cover" }}
                   />
                   <span
                     style={{
@@ -865,12 +802,12 @@ export default function MatrixPortfolio() {
               loop
               muted
               playsInline
+              preload="none"
+              poster="/journey-poster.jpg"
+              aria-hidden="true"
               style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
             >
-              <source
-                src="/hailuo-2_3_Cinematic_moody_developer_workspace_atmosphere_loopable_background_video._A_dark-0.mp4"
-                type="video/mp4"
-              />
+              <source src="/journey-bg.mp4" type="video/mp4" />
             </video>
             <div style={{ position: "absolute", inset: 0, background: "rgba(4,13,24,0.72)" }} />
           </div>
@@ -888,19 +825,17 @@ export default function MatrixPortfolio() {
               >
                 01 / {t.journeyTag}
               </p>
-              <ScrambleOnView
-                as="h2"
-                text={t.journeyTitle}
-                reduced={reduced}
+              <h2
                 style={{
-                  display: "block",
                   margin: "0 0 24px",
                   fontFamily: displayFont,
                   fontWeight: 400,
                   fontSize: "clamp(32px, 4.6vw, 54px)",
                   color: "#F8F9FA",
                 }}
-              />
+              >
+                {t.journeyTitle}
+              </h2>
               <div style={{ display: "grid", gap: 14 }}>
                 {t.journeyLead.map((para, i) => (
                   <p key={i} className="mx-glow-line" style={{ margin: 0, fontSize: 14, lineHeight: 1.9 }}>
@@ -910,7 +845,7 @@ export default function MatrixPortfolio() {
               </div>
               <div className="mx-journey-active-year">
                 <span className="mx-journey-active-year-label">{ar ? "المحطة" : "NOW AT"}</span>
-                <span className="mx-journey-active-year-value">{activeYearDisplay}</span>
+                <span className="mx-journey-active-year-value">{activeYear}</span>
               </div>
             </div>
 
@@ -962,19 +897,17 @@ export default function MatrixPortfolio() {
           >
             02 / {t.projTag}
           </p>
-          <ScrambleOnView
-            as="h2"
-            text={t.projTitle}
-            reduced={reduced}
+          <h2
             style={{
-              display: "block",
               margin: "0 0 44px",
               fontFamily: displayFont,
               fontWeight: 400,
               fontSize: "clamp(32px, 4.6vw, 54px)",
               color: "#F8F9FA",
             }}
-          />
+          >
+            {t.projTitle}
+          </h2>
           <div
             style={{
               display: "grid",
@@ -986,17 +919,12 @@ export default function MatrixPortfolio() {
               <article key={p.name} className="mx-project-card">
                 <div style={{ position: "relative", width: "100%", aspectRatio: "16/10", overflow: "hidden", background: "#06101c" }}>
                   {p.img ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
+                    <Image
                       src={p.img}
                       alt={p.name}
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                        display: "block",
-                        filter: "saturate(0.9) contrast(1.05)",
-                      }}
+                      fill
+                      sizes="(max-width: 700px) 92vw, (max-width: 1120px) 46vw, 360px"
+                      style={{ objectFit: "cover", filter: "saturate(0.9) contrast(1.05)" }}
                     />
                   ) : null}
                   {p.noImg ? (
@@ -1096,19 +1024,17 @@ export default function MatrixPortfolio() {
           >
             03 / {t.contactTag}
           </p>
-          <ScrambleOnView
-            as="h2"
-            text={t.contactTitle}
-            reduced={reduced}
+          <h2
             style={{
-              display: "block",
               margin: "0 0 18px",
               fontFamily: displayFont,
               fontWeight: 400,
               fontSize: "clamp(32px, 4.6vw, 54px)",
               color: "#F8F9FA",
             }}
-          />
+          >
+            {t.contactTitle}
+          </h2>
           <p className="mx-glow-line" style={{ margin: "0 auto 42px", maxWidth: 500, fontSize: 15, lineHeight: 1.95 }}>
             {t.contactLead}
           </p>
