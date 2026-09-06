@@ -1,9 +1,88 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { CONTENT, FLY_WORDS, Lang, TERM_LINES } from "@/content/translations";
+import { useEffect, useRef, useState } from "react";
+import { CONTENT, JourneyMilestone, Lang, TERM_LINES } from "@/content/translations";
 
 const MONO_FONT = "'JetBrains Mono', monospace";
+const SCRAMBLE_CHARS = "!<>-_/[]{}=+*^?#$%01アイウ";
+
+function scrambleChar() {
+  return SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
+}
+
+/** Animates `text` into view via a scramble/decode effect whenever `triggerToken` increases past 0. */
+function useScrambleText(text: string, triggerToken: number, reduced: boolean, frames = 34, frameMs = 70) {
+  const [display, setDisplay] = useState(text);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    if (triggerToken === 0 || reduced) {
+      setDisplay(text);
+      return;
+    }
+    const totalFrames = frames;
+    const lockFrames = text.split("").map((ch) => (ch === " " ? -1 : Math.floor(Math.random() * totalFrames)));
+    let frame = 0;
+    intervalRef.current = setInterval(() => {
+      frame++;
+      const next = text
+        .split("")
+        .map((ch, i) => (ch === " " || frame >= lockFrames[i] ? ch : scrambleChar()))
+        .join("");
+      setDisplay(next);
+      if (frame >= totalFrames) {
+        setDisplay(text);
+        if (intervalRef.current) clearInterval(intervalRef.current);
+      }
+    }, frameMs);
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [text, triggerToken, reduced, frames, frameMs]);
+
+  return display;
+}
+
+/** Replays the scramble-decode effect on `text` every time this element enters the viewport. */
+function ScrambleOnView({
+  text,
+  reduced,
+  as: Tag = "span",
+  ...rest
+}: {
+  text: string;
+  reduced: boolean;
+  as?: keyof JSX.IntrinsicElements;
+} & React.HTMLAttributes<HTMLElement>) {
+  const ref = useRef<HTMLElement | null>(null);
+  const [playToken, setPlayToken] = useState(0);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) setPlayToken((c) => c + 1);
+        });
+      },
+      { threshold: 0.4 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  const display = useScrambleText(text, playToken, reduced);
+
+  return (
+    // @ts-expect-error -- generic element ref via dynamic tag
+    <Tag ref={ref} {...rest}>
+      {display}
+    </Tag>
+  );
+}
 
 function useReducedMotion() {
   const [reduced, setReduced] = useState(false);
@@ -44,6 +123,30 @@ function useReveal(reduced: boolean) {
   return ref;
 }
 
+/** Toggles `is-visible` every time the element enters or leaves the viewport, so the animation replays both ways. */
+function useRepeatReveal(reduced: boolean) {
+  const ref = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (reduced) {
+      el.classList.add("is-visible");
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          entry.target.classList.toggle("is-visible", entry.isIntersecting);
+        });
+      },
+      { threshold: 0.25, rootMargin: "0px 0px -8% 0px" }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [reduced]);
+  return ref;
+}
+
 /** Lights up all .mx-glow-line text elements, staggered, the first time each enters the viewport. */
 function useGlowReveal(reduced: boolean) {
   useEffect(() => {
@@ -75,25 +178,125 @@ function useGlowReveal(reduced: boolean) {
   }, [reduced]);
 }
 
-interface WordPhase {
-  phase: number;
-  x: number;
-  y: number;
+const JOURNEY_TYPE_LABEL: Record<JourneyMilestone["type"], { ar: string; en: string }> = {
+  education: { ar: "تعليم", en: "Education" },
+  skills: { ar: "مهارات", en: "Skills" },
+  job: { ar: "عمل", en: "Job" },
+  project: { ar: "مشروع", en: "Project" },
+};
+
+/** The year heading of a timeline group: scales in and decodes itself every time it's scrolled into view. */
+function JourneyYear({ year, reduced }: { year: string; reduced: boolean }) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [playToken, setPlayToken] = useState(0);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (reduced) {
+      el.classList.add("is-visible");
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          entry.target.classList.toggle("is-visible", entry.isIntersecting);
+          if (entry.isIntersecting) setPlayToken((c) => c + 1);
+        });
+      },
+      { threshold: 0.6 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [reduced]);
+
+  const display = useScrambleText(year, playToken, reduced, 12, 45);
+
+  return (
+    <div ref={ref} className="mx-journey-year">
+      {display}
+    </div>
+  );
 }
 
-function flyWordStyle(phases: WordPhase[], index: number, progress: number) {
-  const ph = phases[index];
-  const local = (((progress * 1.6 - ph.phase * 0.9 + 1) % 1) + 1) % 1;
-  const z = -1400 + local * 1700;
-  let opacity = 1;
-  if (local < 0.12) opacity = local / 0.12;
-  if (local > 0.82) opacity = Math.max(0, (1 - local) / 0.18);
-  if (z > 240) opacity = 0;
-  return {
-    transform: `translate3d(${ph.x}vw, ${ph.y}vh, ${z}px) translate(-50%, -50%)`,
-    opacity,
-    color: index % 4 === 0 ? "#E67E22" : "#C8963E",
-  };
+/** One timeline entry: slides in and lights up its rail dot every time it's scrolled into view. */
+function JourneyCard({ milestone, ar, reduced }: { milestone: JourneyMilestone; ar: boolean; reduced: boolean }) {
+  const ref = useRepeatReveal(reduced);
+  const badgeColor = milestone.type === "skills" || milestone.type === "job" ? "#C8963E" : "#E67E22";
+
+  return (
+    <div ref={ref as React.RefObject<HTMLDivElement>} className="mx-journey-card">
+      <span className="mx-journey-dot" />
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 14px", alignItems: "baseline", marginBottom: 10 }}>
+        <span
+          className="mx-journey-badge"
+          style={{ color: badgeColor, border: `1px solid ${badgeColor}66`, background: `${badgeColor}14` }}
+        >
+          {JOURNEY_TYPE_LABEL[milestone.type][ar ? "ar" : "en"]}
+        </span>
+        <span style={{ fontFamily: MONO_FONT, fontSize: 12, color: "rgba(248,249,250,0.5)" }}>{milestone.date}</span>
+      </div>
+      <h3 style={{ margin: "0 0 6px", fontSize: "clamp(18px, 1.9vw, 23px)", fontWeight: 500, color: "#F8F9FA" }}>
+        {milestone.title}
+      </h3>
+      {milestone.org ? (
+        <div className="mx-glow-line" style={{ fontSize: 14, marginBottom: 8 }}>
+          {milestone.org}
+        </div>
+      ) : null}
+      {milestone.desc ? (
+        <p className="mx-glow-line" style={{ margin: "0 0 14px", fontSize: 14, lineHeight: 1.85, maxWidth: 640 }}>
+          {milestone.desc}
+        </p>
+      ) : null}
+      {milestone.img ? (
+        <div
+          style={{
+            position: "relative",
+            width: "100%",
+            maxWidth: 420,
+            aspectRatio: "16/10",
+            overflow: "hidden",
+            borderRadius: 8,
+            marginBottom: 14,
+            border: "1px solid rgba(200,150,62,0.2)",
+            background: "#06101c",
+          }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={milestone.img}
+            alt={milestone.title}
+            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+          />
+        </div>
+      ) : null}
+      {milestone.items ? (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: milestone.link ? 14 : 0 }}>
+          {milestone.items.map((item) => (
+            <span
+              key={item}
+              className="mx-glow-line"
+              style={{
+                fontSize: 12,
+                padding: "6px 12px",
+                borderRadius: 4,
+                background: "rgba(200,150,62,0.08)",
+                border: "1px solid rgba(200,150,62,0.16)",
+              }}
+            >
+              {item}
+            </span>
+          ))}
+        </div>
+      ) : null}
+      {milestone.link ? (
+        <a href={milestone.link} target="_blank" rel="noopener noreferrer" className="mx-visit-btn" style={{ fontFamily: MONO_FONT }}>
+          {milestone.linkLabel} ↗
+        </a>
+      ) : null}
+    </div>
+  );
 }
 
 export default function MatrixPortfolio() {
@@ -110,38 +313,33 @@ export default function MatrixPortfolio() {
   const displayFont = ar ? "'Rakkas', serif" : MONO_FONT;
   const bodyFont = ar ? "'IBM Plex Sans Arabic', sans-serif" : "'IBM Plex Sans', sans-serif";
 
-  const bgRef = useRef<HTMLCanvasElement | null>(null);
-  const gridRef = useRef<HTMLDivElement | null>(null);
-  const flickerRef = useRef<HTMLCanvasElement | null>(null);
-  const flyRef = useRef<HTMLDivElement | null>(null);
-  const flyWordRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const wordPhasesRef = useRef<WordPhase[] | null>(null);
-
-  const getWordPhases = useCallback(() => {
-    if (!wordPhasesRef.current) {
-      wordPhasesRef.current = FLY_WORDS.map((_, i) => ({
-        phase: i / FLY_WORDS.length,
-        x: (Math.random() - 0.5) * 70,
-        y: (Math.random() - 0.5) * 60,
-      }));
-    }
-    return wordPhasesRef.current;
+  const journeyGroups = t.journey.reduce<{ year: string; items: JourneyMilestone[] }[]>((acc, m) => {
+    const last = acc[acc.length - 1];
+    if (last && last.year === m.year) last.items.push(m);
+    else acc.push({ year: m.year, items: [m] });
+    return acc;
   }, []);
 
-  const paintFlyingWords = useCallback(
-    (progressVal: number) => {
-      const phases = getWordPhases();
-      FLY_WORDS.forEach((_, i) => {
-        const el = flyWordRefs.current[i];
-        if (!el) return;
-        const s = flyWordStyle(phases, i, progressVal);
-        el.style.transform = s.transform;
-        el.style.opacity = String(s.opacity);
-        el.style.color = s.color;
-      });
-    },
-    [getWordPhases]
-  );
+  const bgRef = useRef<HTMLCanvasElement | null>(null);
+  const ambientGlowRef = useRef<HTMLDivElement | null>(null);
+  const heroGlowRef = useRef<HTMLDivElement | null>(null);
+  const heroVideoRef = useRef<HTMLVideoElement | null>(null);
+  const journeyTrackRef = useRef<HTMLDivElement | null>(null);
+  const journeyFillRef = useRef<HTMLDivElement | null>(null);
+  const journeyDotRef = useRef<HTMLDivElement | null>(null);
+  const journeyGroupRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  const [activeYear, setActiveYear] = useState("");
+  const activeYearRef = useRef("");
+  const journeyYearsRef = useRef<string[]>([]);
+  journeyYearsRef.current = journeyGroups.map((g) => g.year);
+  const activeYearDisplay = useScrambleText(activeYear, activeYear ? 1 : 0, reduced, 14, 45);
+
+  useEffect(() => {
+    const first = t.journey[0]?.year ?? "";
+    activeYearRef.current = first;
+    setActiveYear(first);
+  }, [t]);
 
   /* ---------- terminal loading sequence: time-driven, never rAF-gated ---------- */
   useEffect(() => {
@@ -209,98 +407,59 @@ export default function MatrixPortfolio() {
     };
   }, [reduced]);
 
-  /* ---------- flickering grid cells: random squares glow on/off ---------- */
-  useEffect(() => {
-    const canvas = flickerRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    const cell = 64;
-    let cols = 0;
-    let rows = 0;
-    let cells: { on: boolean; alpha: number; target: number }[] = [];
-    const setup = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      cols = Math.ceil(canvas.width / cell);
-      rows = Math.ceil(canvas.height / cell);
-      cells = new Array(cols * rows).fill(0).map(() => ({ on: false, alpha: 0, target: 0 }));
-    };
-    setup();
-    window.addEventListener("resize", setup);
-    if (reduced) {
-      return () => window.removeEventListener("resize", setup);
-    }
-    const draw = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      for (let i = 0; i < cells.length; i++) {
-        const c = cells[i];
-        if (!c.on && Math.random() < 0.0025) {
-          c.on = true;
-          c.target = 0.16 + Math.random() * 0.18;
-        } else if (c.on && c.alpha >= c.target && Math.random() < 0.02) {
-          c.target = 0;
-        }
-        c.alpha += (c.target - c.alpha) * 0.08;
-        if (c.on && c.target === 0 && c.alpha < 0.005) {
-          c.on = false;
-          c.alpha = 0;
-        }
-        if (c.alpha > 0.003) {
-          const col = i % cols;
-          const row = Math.floor(i / cols);
-          ctx.fillStyle = `rgba(200,150,62,${c.alpha})`;
-          ctx.fillRect(col * cell + 1, row * cell + 1, cell - 2, cell - 2);
-        }
-      }
-    };
-    const flickerInterval = setInterval(draw, 60);
-    return () => {
-      window.removeEventListener("resize", setup);
-      clearInterval(flickerInterval);
-    };
-  }, [reduced]);
-
-  /* ---------- grid parallax: direct DOM write on pointermove, no rAF loop ---------- */
+  /* ---------- mouse parallax: background layers drift opposite the cursor for a 3D-depth feel ---------- */
   useEffect(() => {
     if (reduced) return;
     const onMove = (e: PointerEvent) => {
       const mx = (e.clientX / window.innerWidth) * 2 - 1;
       const my = (e.clientY / window.innerHeight) * 2 - 1;
-      if (gridRef.current) {
-        gridRef.current.style.transform = `translate(${mx * 14}px, ${my * 14}px)`;
+      if (ambientGlowRef.current) {
+        ambientGlowRef.current.style.transform = `translate(${-mx * 18}px, ${-my * 18}px)`;
+      }
+      if (heroGlowRef.current) {
+        heroGlowRef.current.style.transform = `translate(${-mx * 26}px, ${-my * 26}px)`;
+      }
+      if (heroVideoRef.current) {
+        heroVideoRef.current.style.transform = `translate(${mx * 10}px, ${my * 10}px) scale(1.06)`;
       }
     };
     window.addEventListener("pointermove", onMove, { passive: true });
     return () => window.removeEventListener("pointermove", onMove);
   }, [reduced]);
 
-  /* ---------- scroll-driven flying skill words, rAF-coalesced to one update per frame ---------- */
+  /* ---------- journey timeline progress: fill line + moving dot, rAF-coalesced to one update per frame ---------- */
   useEffect(() => {
-    paintFlyingWords(0);
     let scheduled = false;
     const onScroll = () => {
       if (scheduled) return;
       scheduled = true;
       requestAnimationFrame(() => {
         scheduled = false;
-        const el = flyRef.current;
+        const el = journeyTrackRef.current;
         if (!el) return;
         const rect = el.getBoundingClientRect();
-        const total = rect.height - window.innerHeight;
-        let p = total > 0 ? -rect.top / total : 0;
+        const viewportAnchor = window.innerHeight * 0.35;
+        let p = rect.height > 0 ? (viewportAnchor - rect.top) / rect.height : 0;
         p = Math.max(0, Math.min(1, p));
-        paintFlyingWords(p);
+        if (journeyFillRef.current) journeyFillRef.current.style.height = `${p * 100}%`;
+        if (journeyDotRef.current) journeyDotRef.current.style.top = `${p * 100}%`;
+
+        const years = journeyYearsRef.current;
+        let active = years[0] ?? "";
+        journeyGroupRefs.current.forEach((group, i) => {
+          if (group && group.getBoundingClientRect().top <= viewportAnchor) active = years[i] ?? active;
+        });
+        if (active && active !== activeYearRef.current) {
+          activeYearRef.current = active;
+          setActiveYear(active);
+        }
       });
     };
+    onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, [paintFlyingWords]);
+  }, []);
 
-  const aboutRef = useReveal(reduced);
-  const skillsTopRef = useReveal(reduced);
-  const skillsBottomRef = useReveal(reduced);
-  const experienceRef = useReveal(reduced);
   const projectsRef = useReveal(reduced);
   const contactRef = useReveal(reduced);
 
@@ -329,27 +488,14 @@ export default function MatrixPortfolio() {
         }}
       />
       <div
-        ref={gridRef}
+        ref={ambientGlowRef}
         style={{
           position: "fixed",
-          inset: 0,
+          inset: "-30px",
           zIndex: 0,
           pointerEvents: "none",
-          opacity: 0.18,
-          backgroundImage:
-            "repeating-linear-gradient(0deg, rgba(200,150,62,0.5) 0px, rgba(200,150,62,0.5) 1px, transparent 1px, transparent 64px), repeating-linear-gradient(90deg, rgba(200,150,62,0.5) 0px, rgba(200,150,62,0.5) 1px, transparent 1px, transparent 64px)",
-        }}
-      />
-      <canvas
-        ref={flickerRef}
-        style={{
-          position: "fixed",
-          inset: 0,
-          width: "100%",
-          height: "100%",
-          display: "block",
-          zIndex: 0,
-          pointerEvents: "none",
+          background:
+            "radial-gradient(ellipse at 50% 0%, rgba(20,36,58,0.55) 0%, rgba(4,13,24,0) 55%), linear-gradient(180deg, #040D18 0%, #06101f 45%, #040D18 100%)",
         }}
       />
       <div
@@ -472,6 +618,7 @@ export default function MatrixPortfolio() {
           }}
         >
           <video
+            ref={heroVideoRef}
             autoPlay
             loop
             muted
@@ -483,6 +630,8 @@ export default function MatrixPortfolio() {
               height: "100%",
               objectFit: "cover",
               zIndex: 0,
+              transform: "scale(1.06)",
+              transition: "transform 0.2s ease-out",
             }}
           >
             <source
@@ -501,6 +650,7 @@ export default function MatrixPortfolio() {
           />
           <div style={{ position: "relative", zIndex: 2 }}>
             <div
+              ref={heroGlowRef}
               style={{
                 position: "absolute",
                 inset: "-6% -14%",
@@ -693,299 +843,105 @@ export default function MatrixPortfolio() {
         </section>
 
         <section
-          id="about"
-          ref={aboutRef as React.RefObject<HTMLElement>}
-          className="mx-reveal"
-          style={{ maxWidth: 1100, margin: "0 auto", padding: "90px clamp(20px, 6vw, 60px)" }}
+          id="journey"
+          style={{
+            position: "relative",
+            ["--mx-slide-from" as string]: ar ? "48px" : "-48px",
+          }}
         >
-          <p
-            style={{
-              margin: "0 0 14px",
-              fontFamily: MONO_FONT,
-              fontSize: 12,
-              letterSpacing: ".3em",
-              color: "rgba(230,126,34,0.8)",
-            }}
-          >
-            01 / {t.aboutTag}
-          </p>
-          <h2
-            style={{
-              margin: "0 0 40px",
-              fontFamily: displayFont,
-              fontWeight: 400,
-              fontSize: "clamp(32px, 4.6vw, 54px)",
-              color: "#F8F9FA",
-            }}
-          >
-            {t.aboutTitle}
-          </h2>
           <div
             style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-              gap: "clamp(24px, 4vw, 60px)",
+              position: "sticky",
+              top: 0,
+              height: "100vh",
+              marginBottom: "-100vh",
+              zIndex: 0,
+              overflow: "hidden",
+              pointerEvents: "none",
             }}
           >
-            <div>
-              {t.aboutBody.map((para, i) => (
-                <p
-                  key={i}
-                  className="mx-glow-line"
-                  style={{
-                    margin: "0 0 20px",
-                    fontSize: "clamp(15px, 1.3vw, 17px)",
-                    lineHeight: 1.95,
-                  }}
-                >
-                  {para}
-                </p>
-              ))}
-            </div>
-            <div style={{ display: "grid", gap: 14, alignContent: "start" }}>
-              {t.aboutFacts.map((fact) => (
-                <div
-                  key={fact.label}
-                  style={{
-                    padding: "18px 20px",
-                    borderRadius: 6,
-                    border: "1px solid rgba(200,150,62,0.2)",
-                    background: "rgba(8,18,30,0.6)",
-                    borderInlineStart: "2px solid rgba(200,150,62,0.55)",
-                  }}
-                >
-                  <div
-                    style={{
-                      fontFamily: MONO_FONT,
-                      fontSize: 11,
-                      letterSpacing: ".18em",
-                      color: "rgba(200,150,62,0.85)",
-                      marginBottom: 8,
-                    }}
-                  >
-                    {fact.label}
-                  </div>
-                  <div className="mx-glow-line" style={{ fontSize: 15, lineHeight: 1.7 }}>
-                    {fact.value}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section id="skills" style={{ position: "relative" }}>
-          <div
-            ref={skillsTopRef as React.RefObject<HTMLDivElement>}
-            className="mx-reveal"
-            style={{ maxWidth: 1100, margin: "0 auto", padding: "90px clamp(20px, 6vw, 60px) 20px" }}
-          >
-            <p
-              style={{
-                margin: "0 0 14px",
-                fontFamily: MONO_FONT,
-                fontSize: 12,
-                letterSpacing: ".3em",
-                color: "rgba(230,126,34,0.8)",
-              }}
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
             >
-              02 / {t.skillsTag}
-            </p>
-            <h2
-              style={{
-                margin: 0,
-                fontFamily: displayFont,
-                fontWeight: 400,
-                fontSize: "clamp(32px, 4.6vw, 54px)",
-                color: "#F8F9FA",
-              }}
-            >
-              {t.skillsTitle}
-            </h2>
+              <source
+                src="/hailuo-2_3_Cinematic_moody_developer_workspace_atmosphere_loopable_background_video._A_dark-0.mp4"
+                type="video/mp4"
+              />
+            </video>
+            <div style={{ position: "absolute", inset: 0, background: "rgba(4,13,24,0.72)" }} />
           </div>
 
-          <div ref={flyRef} style={{ position: "relative", height: "260vh" }}>
-            <div
-              style={{
-                position: "sticky",
-                top: 0,
-                height: "100vh",
-                overflow: "hidden",
-                perspective: 600,
-                perspectiveOrigin: "50% 50%",
-              }}
-            >
-              <video
-                autoPlay
-                loop
-                muted
-                playsInline
+          <div className="mx-journey-layout">
+            <div className="mx-journey-intro">
+              <p
                 style={{
-                  position: "absolute",
-                  inset: 0,
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  zIndex: 0,
+                  margin: "0 0 14px",
+                  fontFamily: MONO_FONT,
+                  fontSize: 12,
+                  letterSpacing: ".3em",
+                  color: "rgba(230,126,34,0.8)",
                 }}
               >
-                <source
-                  src="/hailuo-2_3_Cinematic_moody_developer_workspace_atmosphere_loopable_background_video._A_dark-0.mp4"
-                  type="video/mp4"
-                />
-              </video>
-              <div
+                01 / {t.journeyTag}
+              </p>
+              <ScrambleOnView
+                as="h2"
+                text={t.journeyTitle}
+                reduced={reduced}
                 style={{
-                  position: "absolute",
-                  inset: 0,
-                  zIndex: 0,
-                  pointerEvents: "none",
-                  background: "rgba(4,13,24,0.55)",
+                  display: "block",
+                  margin: "0 0 24px",
+                  fontFamily: displayFont,
+                  fontWeight: 400,
+                  fontSize: "clamp(32px, 4.6vw, 54px)",
+                  color: "#F8F9FA",
                 }}
               />
-              <div style={{ position: "absolute", inset: 0, zIndex: 1 }}>
-                {FLY_WORDS.map((word, i) => (
-                  <div
-                    key={word}
-                    ref={(el) => {
-                      flyWordRefs.current[i] = el;
-                    }}
-                    className="mx-fly-word"
-                    style={{ fontFamily: MONO_FONT }}
-                  >
-                    {word}
-                  </div>
+              <div style={{ display: "grid", gap: 14 }}>
+                {t.journeyLead.map((para, i) => (
+                  <p key={i} className="mx-glow-line" style={{ margin: 0, fontSize: 14, lineHeight: 1.9 }}>
+                    {para}
+                  </p>
                 ))}
               </div>
-              <div
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  pointerEvents: "none",
-                  background: "radial-gradient(circle at 50% 50%, rgba(4,13,24,0) 30%, rgba(4,13,24,0.9) 92%)",
-                }}
-              />
+              <div className="mx-journey-active-year">
+                <span className="mx-journey-active-year-label">{ar ? "المحطة" : "NOW AT"}</span>
+                <span className="mx-journey-active-year-value">{activeYearDisplay}</span>
+              </div>
             </div>
-          </div>
 
-          <div
-            ref={skillsBottomRef as React.RefObject<HTMLDivElement>}
-            className="mx-reveal"
-            style={{ maxWidth: 1100, margin: "0 auto", padding: "20px clamp(20px, 6vw, 60px) 90px" }}
-          >
             <div
+              ref={journeyTrackRef}
+              className="mx-journey-track"
               style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-                gap: 18,
+                ["--mx-rail-x" as string]: "clamp(14px, 3vw, 20px)",
+                ["--mx-card-pad" as string]: "clamp(40px, 6vw, 58px)",
               }}
             >
-              {t.skillGroups.map((group) => (
-                <div key={group.title} className="mx-skill-card">
-                  <div style={{ fontFamily: MONO_FONT, fontSize: 16, color: "#E67E22", marginBottom: 16 }}>
-                    {group.title}
-                  </div>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                    {group.items.map((skill) => (
-                      <span
-                        key={skill}
-                        className="mx-glow-line"
-                        style={{
-                          fontSize: 12,
-                          padding: "6px 12px",
-                          borderRadius: 4,
-                          background: "rgba(200,150,62,0.08)",
-                          border: "1px solid rgba(200,150,62,0.16)",
-                        }}
-                      >
-                        {skill}
-                      </span>
+              <div className="mx-journey-rail" />
+              <div ref={journeyFillRef} className="mx-journey-rail-fill" />
+              <div ref={journeyDotRef} className="mx-journey-rail-dot" />
+              {journeyGroups.map((group, gi) => (
+                <div
+                  key={group.year}
+                  ref={(el) => {
+                    journeyGroupRefs.current[gi] = el;
+                  }}
+                  style={{ position: "relative" }}
+                >
+                  <JourneyYear year={group.year} reduced={reduced} />
+                  <div className="mx-journey-group-cards">
+                    {group.items.map((m, i) => (
+                      <JourneyCard key={i} milestone={m} ar={ar} reduced={reduced} />
                     ))}
                   </div>
                 </div>
               ))}
             </div>
-          </div>
-        </section>
-
-        <section
-          id="experience"
-          ref={experienceRef as React.RefObject<HTMLElement>}
-          className="mx-reveal"
-          style={{ maxWidth: 980, margin: "0 auto", padding: "90px clamp(20px, 6vw, 60px)" }}
-        >
-          <p
-            style={{
-              margin: "0 0 14px",
-              fontFamily: MONO_FONT,
-              fontSize: 12,
-              letterSpacing: ".3em",
-              color: "rgba(230,126,34,0.8)",
-            }}
-          >
-            03 / {t.expTag}
-          </p>
-          <h2
-            style={{
-              margin: "0 0 46px",
-              fontFamily: displayFont,
-              fontWeight: 400,
-              fontSize: "clamp(32px, 4.6vw, 54px)",
-              color: "#F8F9FA",
-            }}
-          >
-            {t.expTitle}
-          </h2>
-          <div
-            style={{
-              display: "grid",
-              gap: 4,
-              borderInlineStart: "1px solid rgba(200,150,62,0.28)",
-              paddingInlineStart: "clamp(22px, 4vw, 42px)",
-            }}
-          >
-            {t.experience.map((job, i) => (
-              <div key={i} style={{ position: "relative", padding: "24px 0" }}>
-                <span
-                  style={{
-                    position: "absolute",
-                    insetInlineStart: "calc(clamp(22px, 4vw, 42px) * -1 - 5px)",
-                    top: 34,
-                    width: 9,
-                    height: 9,
-                    borderRadius: "50%",
-                    background: "#C8963E",
-                    boxShadow: "0 0 14px rgba(200,150,62,0.9)",
-                  }}
-                />
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "8px 18px", alignItems: "baseline" }}>
-                  <h3
-                    style={{
-                      margin: 0,
-                      fontSize: "clamp(18px, 1.9vw, 23px)",
-                      fontWeight: 500,
-                      color: "#F8F9FA",
-                      fontFamily: MONO_FONT,
-                    }}
-                  >
-                    {job.role}
-                  </h3>
-                  <span
-                    style={{
-                      fontSize: 13,
-                      letterSpacing: ".05em",
-                      color: "rgba(230,126,34,0.85)",
-                      fontFamily: MONO_FONT,
-                    }}
-                  >
-                    {job.period}
-                  </span>
-                </div>
-                <p className="mx-glow-line" style={{ margin: "8px 0 0", fontSize: 15, lineHeight: 1.85 }}>
-                  {job.org}
-                </p>
-              </div>
-            ))}
           </div>
         </section>
 
@@ -1004,19 +960,21 @@ export default function MatrixPortfolio() {
               color: "rgba(230,126,34,0.8)",
             }}
           >
-            04 / {t.projTag}
+            02 / {t.projTag}
           </p>
-          <h2
+          <ScrambleOnView
+            as="h2"
+            text={t.projTitle}
+            reduced={reduced}
             style={{
+              display: "block",
               margin: "0 0 44px",
               fontFamily: displayFont,
               fontWeight: 400,
               fontSize: "clamp(32px, 4.6vw, 54px)",
               color: "#F8F9FA",
             }}
-          >
-            {t.projTitle}
-          </h2>
+          />
           <div
             style={{
               display: "grid",
@@ -1024,7 +982,7 @@ export default function MatrixPortfolio() {
               gap: 22,
             }}
           >
-            {t.projects.map((p) => (
+            {[...t.projects].sort((a, b) => Number(!!b.img) - Number(!!a.img)).map((p) => (
               <article key={p.name} className="mx-project-card">
                 <div style={{ position: "relative", width: "100%", aspectRatio: "16/10", overflow: "hidden", background: "#06101c" }}>
                   {p.img ? (
@@ -1136,19 +1094,21 @@ export default function MatrixPortfolio() {
               color: "rgba(230,126,34,0.8)",
             }}
           >
-            05 / {t.contactTag}
+            03 / {t.contactTag}
           </p>
-          <h2
+          <ScrambleOnView
+            as="h2"
+            text={t.contactTitle}
+            reduced={reduced}
             style={{
+              display: "block",
               margin: "0 0 18px",
               fontFamily: displayFont,
               fontWeight: 400,
               fontSize: "clamp(32px, 4.6vw, 54px)",
               color: "#F8F9FA",
             }}
-          >
-            {t.contactTitle}
-          </h2>
+          />
           <p className="mx-glow-line" style={{ margin: "0 auto 42px", maxWidth: 500, fontSize: 15, lineHeight: 1.95 }}>
             {t.contactLead}
           </p>

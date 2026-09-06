@@ -262,17 +262,6 @@ a:hover {
   box-shadow: 0 0 20px rgba(255, 215, 0, 0.25);
 }
 
-.mx-skill-card {
-  padding: 26px 24px;
-  border-radius: 8px;
-  border: 1px solid rgba(200, 150, 62, 0.16);
-  background: rgba(8, 18, 30, 0.55);
-}
-
-.mx-skill-card:hover {
-  border-color: rgba(200, 150, 62, 0.4);
-}
-
 .mx-project-card {
   position: relative;
   overflow: hidden;
@@ -326,14 +315,168 @@ a:hover {
   background: rgba(12, 26, 42, 0.7);
 }
 
-.mx-fly-word {
+.mx-journey-layout {
+  position: relative;
+  z-index: 1;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 90px clamp(20px, 6vw, 60px) 110px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(28px, 4vw, 60px);
+}
+
+.mx-journey-track {
+  position: relative;
+}
+
+.mx-journey-active-year {
+  margin-top: 32px;
+  padding: 16px 22px;
+  border-radius: 10px;
+  border: 1px solid rgba(200, 150, 62, 0.25);
+  background: rgba(8, 18, 30, 0.55);
+  backdrop-filter: blur(6px);
+}
+
+.mx-journey-active-year-label {
+  display: block;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  color: rgba(230, 126, 34, 0.85);
+  margin-bottom: 8px;
+}
+
+.mx-journey-active-year-value {
+  display: block;
+  font-family: "JetBrains Mono", monospace;
+  font-weight: 700;
+  font-size: clamp(34px, 4vw, 50px);
+  line-height: 1;
+  color: #c8963e;
+  text-shadow: 0 0 24px rgba(200, 150, 62, 0.45);
+}
+
+@media (min-width: 900px) {
+  .mx-journey-layout {
+    grid-template-columns: minmax(250px, 330px) 1fr;
+  }
+
+  .mx-journey-intro {
+    position: sticky;
+    top: 110px;
+    align-self: start;
+  }
+}
+
+.mx-journey-rail {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  font-weight: 600;
-  font-size: 34px;
-  white-space: nowrap;
+  inset-inline-start: var(--mx-rail-x);
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: rgba(200, 150, 62, 0.14);
+}
+
+.mx-journey-rail-fill {
+  position: absolute;
+  inset-inline-start: var(--mx-rail-x);
+  top: 0;
+  width: 2px;
+  height: 0%;
+  background: linear-gradient(180deg, #c8963e, #e67e22);
+  box-shadow: 0 0 12px rgba(200, 150, 62, 0.6);
+}
+
+.mx-journey-rail-dot {
+  position: absolute;
+  inset-inline-start: var(--mx-rail-x);
+  top: 0%;
+  width: 14px;
+  height: 14px;
+  margin-inline-start: -6px;
+  margin-block-start: -7px;
+  border-radius: 50%;
+  background: #ffd700;
+  box-shadow: 0 0 18px 4px rgba(255, 215, 0, 0.7);
+  z-index: 3;
+}
+
+.mx-journey-year {
+  padding-inline-start: var(--mx-card-pad);
+  font-family: "JetBrains Mono", monospace;
+  font-weight: 700;
+  font-size: clamp(30px, 4.2vw, 52px);
+  line-height: 1;
+  color: rgba(200, 150, 62, 0.45);
   pointer-events: none;
-  text-shadow: 0 0 24px rgba(200, 150, 62, 0.5);
-  will-change: transform, opacity;
+  opacity: 0;
+  transform: translateY(18px) scale(0.9);
+  transform-origin: var(--mx-card-pad) center;
+  transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1), color 0.6s ease,
+    text-shadow 0.6s ease;
+}
+
+.mx-journey-year.is-visible {
+  opacity: 1;
+  transform: none;
+  color: #c8963e;
+  text-shadow: 0 0 28px rgba(200, 150, 62, 0.5);
+}
+
+.mx-journey-group-cards {
+  position: relative;
+  display: grid;
+  gap: 34px;
+  padding-inline-start: var(--mx-card-pad);
+  padding-block: 8px 44px;
+}
+
+.mx-journey-card {
+  position: relative;
+  opacity: 0;
+  transform: translateX(var(--mx-slide-from, -48px));
+  transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.mx-journey-card.is-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.mx-journey-dot {
+  position: absolute;
+  inset-inline-start: calc(var(--mx-rail-x) - var(--mx-card-pad) - 5px);
+  top: 6px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(200, 150, 62, 0.3);
+  border: 2px solid #040d18;
+  transition: background 0.5s ease, box-shadow 0.5s ease;
+}
+
+.mx-journey-card.is-visible .mx-journey-dot {
+  background: #c8963e;
+  box-shadow: 0 0 14px rgba(200, 150, 62, 0.85);
+}
+
+.mx-journey-badge {
+  display: inline-block;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  padding: 3px 10px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mx-journey-card,
+  .mx-journey-year {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }

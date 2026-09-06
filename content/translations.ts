@@ -5,20 +5,17 @@ export interface NavItem {
   href: string;
 }
 
-export interface Fact {
-  label: string;
-  value: string;
-}
-
-export interface SkillGroup {
+export interface JourneyMilestone {
+  year: string;
+  date: string;
+  type: "education" | "skills" | "job" | "project";
   title: string;
-  items: string[];
-}
-
-export interface Job {
-  role: string;
-  org: string;
-  period: string;
+  org?: string;
+  desc?: string;
+  items?: string[];
+  img?: string;
+  link?: string;
+  linkLabel?: string;
 }
 
 export interface Project {
@@ -53,16 +50,10 @@ export interface Content {
   loadingLabel: string;
   photoHint: string;
   photo: string;
-  aboutTag: string;
-  aboutTitle: string;
-  aboutBody: string[];
-  aboutFacts: Fact[];
-  skillsTag: string;
-  skillsTitle: string;
-  skillGroups: SkillGroup[];
-  expTag: string;
-  expTitle: string;
-  experience: Job[];
+  journeyTag: string;
+  journeyTitle: string;
+  journeyLead: string[];
+  journey: JourneyMilestone[];
   projTag: string;
   projTitle: string;
   projects: Project[];
@@ -78,9 +69,7 @@ export const CONTENT: Record<Lang, Content> = {
     brand: "م. سعادات",
     langToggle: "EN",
     nav: [
-      { label: "نبذة", href: "#about" },
-      { label: "المهارات", href: "#skills" },
-      { label: "الخبرة", href: "#experience" },
+      { label: "مسيرتي", href: "#journey" },
       { label: "مشاريع", href: "#projects" },
       { label: "تواصل", href: "#contact" },
     ],
@@ -93,104 +82,84 @@ export const CONTENT: Record<Lang, Content> = {
     ctaContact: "تواصل معي",
     scroll: "انزل للأسفل",
     loadingLabel: "جاري التحميل",
-    photoHint: "صورتك هنا",
+    photoHint: "",
     photo: "/profile-portrait.jpg",
-    aboutTag: "نبذة",
-    aboutTitle: "من أنا",
-    aboutBody: [
-      "دبلوم هندسة برمجيات من المعهد التقني لهندسة الحاسوب، جامعة دمشق (٢٠٢٣–٢٠٢٥).",
+    journeyTag: "مسيرتي",
+    journeyTitle: "مسيرتي",
+    journeyLead: [
       "مهندس برمجيات متكامل (Full-Stack) أعمل حالياً في Connect Digital Agency، حيث أبني منتجات ويب من الألف إلى الياء — من واجهات React/Next.js عالية الأداء إلى أنظمة خلفية إنتاجية بـ Laravel/PHP ونشرها.",
       "أتولّى مشاريع بشكل كامل: تصميم REST APIs، بناء معماريات خدمات متعددة الطبقات، ونشر حاويات مع CI/CD، إضافة إلى تحويل تصاميم UI/UX إلى مكوّنات واجهة نظيفة وقابلة لإعادة الاستخدام.",
       "أؤمن بالكود النظيف ومبادئ SOLID، مع خبرة مباشرة عبر كامل الطبقات — من تصميم قواعد البيانات إلى المصادقة متعددة العملاء عبر JWT وحتى البنية التحتية الإنتاجية.",
     ],
-    aboutFacts: [
-      { label: "التعليم", value: "هندسة برمجيات — جامعة دمشق (٢٠٢٣–٢٠٢٥)" },
-      { label: "الحالياً", value: "مطوّر متكامل (Full-Stack) — Connect Digital Agency" },
-    ],
-    skillsTag: "المهارات",
-    skillsTitle: "المهارات",
-    skillGroups: [
+    journey: [
       {
-        title: "الواجهة الأمامية",
-        items: [
-          "React",
-          "Next.js",
-          "TypeScript",
-          "Tailwind CSS",
-          "Sass",
-          "Zustand",
-          "React Query (TanStack)",
-          "Framer Motion",
-          "Three.js",
-          "Express.js",
-          "Blade",
-        ],
+        year: "٢٠٢٣",
+        date: "٢٠٢٣",
+        type: "education",
+        title: "بداية الدبلوم",
+        org: "المعهد التقني لهندسة الحاسوب — جامعة دمشق",
+        desc: "أول خطوة بالمسيرة: الالتحاق بدبلوم هندسة البرمجيات، والانطلاق بتعلّم أساسيات البرمجة.",
+        items: ["C#", "HTML", "CSS", "JavaScript", "OOP"],
       },
       {
-        title: "الواجهة الخلفية والمعمارية",
-        items: [
-          "Laravel (9/10/11/12)",
-          "Symfony",
-          "PHP 8.x",
-          "OOP / MVC / SOLID",
-          "Repository Pattern",
-          "معمارية طبقات الخدمات (Service Layer)",
-          "PHPUnit & Pest",
-        ],
+        year: "٢٠٢٤",
+        date: "٢٠٢٤",
+        type: "skills",
+        title: "الانتقال لتطوير الواجهة الخلفية",
+        desc: "التعمّق بـ PHP وLaravel، وبناء أول مشاريع خلفية حقيقية بقاعدة بيانات وهيكلية MVC.",
+        items: ["Laravel", "PHP 8.x", "MySQL", "Blade", "Repository Pattern"],
       },
       {
-        title: "تطوير الـ APIs",
-        items: [
-          "RESTful APIs (بناء API بـ 249 نقطة نهاية)",
-          "Laravel API Resources",
-          "Form Requests",
-          "Laravel Sanctum",
-          "tymon/jwt-auth (متعدد Guards)",
-          "Spatie Roles & Permissions",
-          "تحديد معدّل الطلبات المتدرّج",
-          "توثيق OpenAPI/Swagger",
-        ],
-      },
-      { title: "قواعد البيانات", items: ["MySQL (استعلامات معقّدة، فهرسة، تحسين أداء)", "PostgreSQL"] },
-      {
-        title: "DevOps والنشر",
-        items: [
-          "Docker & Docker Compose",
-          "Nginx",
-          "إدارة خوادم Ubuntu VPS",
-          "GitLab CI/CD",
-          "Laravel Cloud",
-          "Vercel",
-        ],
-      },
-      { title: "الاختبارات (الواجهة الأمامية)", items: ["Jest", "React Testing Library", "Playwright"] },
-      {
-        title: "الأداء وإتاحة الوصول",
-        items: ["Core Web Vitals", "إتاحة الوصول (a11y)", "تصميم RTL أولاً"],
+        year: "٢٠٢٥",
+        date: "كانون الثاني – أيار ٢٠٢٥",
+        type: "project",
+        title: "ev-power — مشروع التخرج",
+        desc: "نظام حجز آلي بالكامل لمحطات شحن السيارات الكهربائية بـ Laravel، مع أتمتة معقّدة للجدولة، التحقق من الزيارات، ومنع تعارض الأوقات، ولوحة إدارة بصلاحيات Spatie.",
+        items: ["Laravel", "Service Classes", "Spatie"],
+        img: "/ev-power-card.jpeg",
       },
       {
-        title: "الذكاء الاصطناعي ومعالجة الصوت",
-        items: ["Speech-to-Text", "Faster-Whisper", "Silero VAD", "نماذج Hugging Face", "معمارية RAG", "WebSockets"],
-      },
-      { title: "التتبّع والتحليلات", items: ["Google Analytics (GA4)", "تتبّع الأحداث"] },
-    ],
-    expTag: "الخبرة",
-    expTitle: "الخبرة",
-    experience: [
-      {
-        role: "مطوّر متكامل (Full-Stack Developer)",
-        org: "Connect Digital Agency",
-        period: "أيار ٢٠٢٦ — حتى الآن",
+        year: "٢٠٢٥",
+        date: "تموز ٢٠٢٥",
+        type: "education",
+        title: "التخرّج",
+        org: "هندسة برمجيات — جامعة دمشق (٢٠٢٣–٢٠٢٥)",
+        desc: "إنهاء دبلوم هندسة البرمجيات رسمياً.",
       },
       {
-        role: "مطوّر متكامل (Full-Stack Developer)",
-        org: "MSA DataX — برلين، عن بعد",
-        period: "كانون الأول ٢٠٢٥ — آذار ٢٠٢٦",
-      },
-      {
-        role: "مطوّر واجهات أمامية (Front-End Developer)",
+        year: "٢٠٢٥",
+        date: "أيلول ٢٠٢٥ — آب ٢٠٢٦",
+        type: "job",
+        title: "مطوّر واجهات أمامية (Front-End Developer)",
         org: "Tkram Ride",
-        period: "أيلول ٢٠٢٥ — آب ٢٠٢٦",
+        items: ["React", "Next.js", "TypeScript", "Tailwind CSS"],
+      },
+      {
+        year: "٢٠٢٥–٢٠٢٦",
+        date: "كانون الأول ٢٠٢٥ — آذار ٢٠٢٦",
+        type: "job",
+        title: "مطوّر متكامل (Full-Stack Developer)",
+        org: "MSA DataX — برلين، عن بعد",
+        items: ["WebSockets", "RAG", "Faster-Whisper", "Hugging Face"],
+      },
+      {
+        year: "٢٠٢٦",
+        date: "نيسان – أيار ٢٠٢٦",
+        type: "project",
+        title: "متجر ملابس أطفال إلكتروني",
+        desc: "متجر إلكتروني لملابس الأطفال بـ Next.js وLaravel، مُهيّأ لحركة زوار عالية مع استعلامات قاعدة بيانات وتحميل صور محسّنة لقابلية التوسّع.",
+        items: ["Next.js", "Laravel", "e-commerce"],
+        img: "/kidsstore_categories.png",
+        link: "http://82.165.109.111",
+        linkLabel: "زيارة الموقع",
+      },
+      {
+        year: "٢٠٢٦",
+        date: "أيار ٢٠٢٦ — حتى الآن",
+        type: "job",
+        title: "مطوّر متكامل (Full-Stack Developer)",
+        org: "Connect Digital Agency",
+        items: ["Docker", "CI/CD", "JWT", "Spatie", "OpenAPI/Swagger", "Pest"],
       },
     ],
     projTag: "مشاريع",
@@ -235,16 +204,16 @@ export const CONTENT: Record<Lang, Content> = {
         name: "متجر ملابس أطفال إلكتروني",
         desc: "متجر إلكتروني لملابس الأطفال بـ Next.js وLaravel، مُهيّأ لحركة زوار عالية مع استعلامات قاعدة بيانات وتحميل صور محسّنة لقابلية التوسّع.",
         tags: ["Next.js", "Laravel", "e-commerce"],
-        noImg: true,
-        buildLabel: "متجر إلكتروني",
+        img: "/kidsstore_categories.png",
+        link: "http://82.165.109.111",
+        linkLabel: "زيارة الموقع",
       },
       {
         status: "منشور",
         name: "نظام حجز محطات شحن السيارات الكهربائية (ev-power)",
         desc: "نظام حجز آلي بالكامل لمحطات شحن السيارات الكهربائية بـ Laravel، مع أتمتة معقّدة للجدولة، التحقق من الزيارات، ومنع تعارض الأوقات، ولوحة إدارة بصلاحيات Spatie.",
         tags: ["Laravel", "Service Classes", "Spatie"],
-        noImg: true,
-        buildLabel: "أتمتة وحجز",
+        img: "/ev-power-card.jpeg",
       },
       {
         status: "منشور",
@@ -283,9 +252,7 @@ export const CONTENT: Record<Lang, Content> = {
     brand: "M. Saadat",
     langToggle: "عربي",
     nav: [
-      { label: "About", href: "#about" },
-      { label: "Skills", href: "#skills" },
-      { label: "Experience", href: "#experience" },
+      { label: "Journey", href: "#journey" },
       { label: "Projects", href: "#projects" },
       { label: "Contact", href: "#contact" },
     ],
@@ -300,84 +267,83 @@ export const CONTENT: Record<Lang, Content> = {
     loadingLabel: "LOADING",
     photoHint: "Your photo",
     photo: "/profile-portrait.jpg",
-    aboutTag: "ABOUT",
-    aboutTitle: "About",
-    aboutBody: [
-      "Software Engineering Diploma, Technical Institute of Computer Engineering, Damascus University (2023–2025).",
-      "Full-Stack Software Engineer with professional experience since 2025, currently building end-to-end web products at Connect Digital Agency — from high-performance React/Next.js interfaces to production Laravel/PHP backends and their deployment.",
+    journeyTag: "MY JOURNEY",
+    journeyTitle: "My Journey",
+    journeyLead: [
+      "Full-Stack Software Engineer currently building end-to-end web products at Connect Digital Agency — from high-performance React/Next.js interfaces to production Laravel/PHP backends and their deployment.",
       "Comfortable owning a project fully: architecting REST APIs, designing layered service architectures, and shipping containerized deployments with CI/CD, as well as translating UI/UX designs into clean, reusable front-end components.",
       "Advocate for clean code and SOLID principles, with direct experience across the full stack — from database schema to JWT-based multi-client authentication to production infrastructure.",
     ],
-    aboutFacts: [
-      { label: "EDUCATION", value: "Software Engineering — Damascus University (2023–2025)" },
-      { label: "CURRENTLY", value: "Full-Stack Developer — Connect Digital Agency" },
-    ],
-    skillsTag: "SKILLS",
-    skillsTitle: "Skills",
-    skillGroups: [
+    journey: [
       {
-        title: "Frontend",
-        items: [
-          "React",
-          "Next.js",
-          "TypeScript",
-          "Tailwind CSS",
-          "Sass",
-          "Zustand",
-          "React Query (TanStack)",
-          "Framer Motion",
-          "Three.js",
-          "Express.js",
-          "Blade",
-        ],
+        year: "2023",
+        date: "2023",
+        type: "education",
+        title: "Started the Diploma",
+        org: "Technical Institute of Computer Engineering — Damascus University",
+        desc: "The first step of the journey: enrolling in a Software Engineering diploma and starting with programming fundamentals.",
+        items: ["C#", "HTML", "CSS", "JavaScript", "OOP"],
       },
       {
-        title: "Backend & Architecture",
-        items: [
-          "Laravel (9/10/11/12)",
-          "Symfony",
-          "PHP 8.x",
-          "OOP / MVC / SOLID",
-          "Repository Pattern",
-          "Layered Service-Class architecture",
-          "PHPUnit & Pest",
-        ],
+        year: "2024",
+        date: "2024",
+        type: "skills",
+        title: "Moving into Backend Development",
+        desc: "Diving into PHP and Laravel, and building the first real backend projects with a database and MVC structure.",
+        items: ["Laravel", "PHP 8.x", "MySQL", "Blade", "Repository Pattern"],
       },
       {
-        title: "API Development",
-        items: [
-          "RESTful APIs at scale (249-endpoint production API)",
-          "Laravel API Resources",
-          "Form Requests validation",
-          "Laravel Sanctum",
-          "tymon/jwt-auth (multi-guard)",
-          "Spatie Roles & Permissions",
-          "Tiered rate limiting",
-          "OpenAPI/Swagger documentation",
-        ],
-      },
-      { title: "Databases", items: ["MySQL (complex queries, indexing, optimization)", "PostgreSQL"] },
-      {
-        title: "DevOps & Deployment",
-        items: ["Docker & Docker Compose", "Nginx", "Ubuntu VPS administration", "GitLab CI/CD", "Laravel Cloud", "Vercel"],
-      },
-      { title: "Front-End Testing", items: ["Jest", "React Testing Library", "Playwright"] },
-      {
-        title: "Accessibility & Performance",
-        items: ["Core Web Vitals", "Accessibility (a11y)", "RTL-first design"],
+        year: "2025",
+        date: "Jan – May 2025",
+        type: "project",
+        title: "ev-power — Graduation Project",
+        desc: "A fully automated booking system for EV charging stations using Laravel, with complex backend automation for scheduling, visit verification, and real-time conflict checking, plus an admin panel with Spatie role-based access control.",
+        items: ["Laravel", "Service Classes", "Spatie"],
+        img: "/ev-power-card.jpeg",
       },
       {
-        title: "AI & Audio Processing",
-        items: ["Speech-to-Text", "Faster-Whisper", "Silero VAD", "Hugging Face models", "RAG architecture", "WebSockets"],
+        year: "2025",
+        date: "July 2025",
+        type: "education",
+        title: "Graduated",
+        org: "Software Engineering — Damascus University (2023–2025)",
+        desc: "Officially completed the Software Engineering diploma.",
       },
-      { title: "Tracking & Analytics", items: ["Google Analytics (GA4)", "Event tracking"] },
-    ],
-    expTag: "EXPERIENCE",
-    expTitle: "Experience",
-    experience: [
-      { role: "Full-Stack Developer", org: "Connect Digital Agency", period: "May 2026 — present" },
-      { role: "Full-Stack Developer", org: "MSA DataX — Berlin, remote", period: "Dec 2025 — Mar 2026" },
-      { role: "Front-End Developer", org: "Tkram Ride", period: "Sep 2025 — Aug 2026" },
+      {
+        year: "2025",
+        date: "Sep 2025 — Aug 2026",
+        type: "job",
+        title: "Front-End Developer",
+        org: "Tkram Ride",
+        items: ["React", "Next.js", "TypeScript", "Tailwind CSS"],
+      },
+      {
+        year: "2025–2026",
+        date: "Dec 2025 — Mar 2026",
+        type: "job",
+        title: "Full-Stack Developer",
+        org: "MSA DataX — Berlin, remote",
+        items: ["WebSockets", "RAG", "Faster-Whisper", "Hugging Face"],
+      },
+      {
+        year: "2026",
+        date: "Apr – May 2026",
+        type: "project",
+        title: "Children's Clothing E-Commerce Platform",
+        desc: "A children's clothing e-commerce storefront using Next.js and Laravel, engineered for high visitor traffic with optimized database queries and image loading for scalability.",
+        items: ["Next.js", "Laravel", "e-commerce"],
+        img: "/kidsstore_categories.png",
+        link: "http://82.165.109.111",
+        linkLabel: "Visit site",
+      },
+      {
+        year: "2026",
+        date: "May 2026 — present",
+        type: "job",
+        title: "Full-Stack Developer",
+        org: "Connect Digital Agency",
+        items: ["Docker", "CI/CD", "JWT", "Spatie", "OpenAPI/Swagger", "Pest"],
+      },
     ],
     projTag: "PROJECTS",
     projTitle: "Projects",
@@ -421,16 +387,16 @@ export const CONTENT: Record<Lang, Content> = {
         name: "Children's Clothing E-Commerce Platform",
         desc: "A children's clothing e-commerce storefront using Next.js and Laravel, engineered for high visitor traffic with optimized database queries and image loading for scalability.",
         tags: ["Next.js", "Laravel", "e-commerce"],
-        noImg: true,
-        buildLabel: "E-COMMERCE",
+        img: "/kidsstore_categories.png",
+        link: "http://82.165.109.111",
+        linkLabel: "Visit site",
       },
       {
         status: "SHIPPED",
         name: "Power Station Charging Booking System (ev-power)",
         desc: "A fully automated booking system for EV charging stations using Laravel, with complex backend automation for scheduling, visit verification, and real-time conflict checking, plus an admin panel with Spatie role-based access control.",
         tags: ["Laravel", "Service Classes", "Spatie"],
-        noImg: true,
-        buildLabel: "BOOKING SYSTEM",
+        img: "/ev-power-card.jpeg",
       },
       {
         status: "SHIPPED",
@@ -473,23 +439,4 @@ export const TERM_LINES: string[] = [
   "> compiling components (react, next, laravel)...",
   "> optimizing for RTL and a11y...",
   "root@saadat:~$ starting server",
-];
-
-export const FLY_WORDS: string[] = [
-  "React",
-  "Next.js",
-  "TypeScript",
-  "Tailwind CSS",
-  "Laravel",
-  "FastAPI",
-  "Zustand",
-  "React Query",
-  "Framer Motion",
-  "Three.js",
-  "Jest",
-  "Playwright",
-  "a11y",
-  "RTL-first",
-  "PHP",
-  "Python",
 ];
